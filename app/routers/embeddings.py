@@ -2,12 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from dependencies import ConfigDep
 from features.embeddings.embedding_service import EmbeddingService
 
 router = APIRouter(tags=["Embeddings"])
 
-def get_embedding_server() -> EmbeddingService:
-    return EmbeddingService("ipipan/silver-retriever-base-v1.1")
+def get_embedding_server(config: ConfigDep) -> EmbeddingService:
+    return EmbeddingService(config.data_dir, config.model_name)
 
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_server)]
 

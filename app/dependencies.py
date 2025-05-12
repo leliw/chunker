@@ -14,7 +14,8 @@ _log = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.config = ServerConfig()
+    config = ServerConfig()
+    app.state.config = config
     yield
 
 
