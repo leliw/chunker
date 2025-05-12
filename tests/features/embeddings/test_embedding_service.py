@@ -10,6 +10,19 @@ def test_loading_model():
     assert embedding_service.model_name == model_name
     assert embedding_service.model is not None
 
+def test_get_models():
+    # Given: A data directory with models
+    data_dir = "./data"
+    # When: The models are retrieved
+    embedding_service = EmbeddingService(data_dir=data_dir)
+    models = embedding_service.get_models()
+    # Then: The models should be a list of strings
+    assert isinstance(models, list)
+    assert len(models) > 0
+    for model in models:
+        assert isinstance(model, str)
+    assert len(model.split("/")) == 2  # Check if the model name is in the format "namespace/model_name"
+
 def test_generate_embeddings():
     # Given: A model name and some text
     model_name = "ipipan/silver-retriever-base-v1.1"

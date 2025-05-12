@@ -8,7 +8,7 @@ from config import ServerConfig
 def main():
     config = ServerConfig()
     model_name = config.model_name
-    local_save_directory = Path(config.data_dir) / model_name
+    local_save_directory = f"{config.data_dir}/{model_name}"
     os.makedirs(local_save_directory, exist_ok=True)
 
     print(f"Loading model '{model_name}' ...")
