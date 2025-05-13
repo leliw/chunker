@@ -4,7 +4,7 @@ EXTRA="cpu"
 #EXTRA="gpu"
 DOCKER_REGISTRY="europe-west3-docker.pkg.dev/development-428212/docker-eu"
 IMAGE_NAME="chunker"
-IMAGE_VERSION="$EXTRA-0.0.1"
+IMAGE_VERSION="$EXTRA-0.0.2"
 
 docker run \
 --gpus all \

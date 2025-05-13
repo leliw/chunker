@@ -6,6 +6,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.concurrency import asynccontextmanager
 
 from config import ServerConfig
+from features.embeddings.embedding_service import EmbeddingService
 
 load_dotenv()
 
@@ -16,6 +17,9 @@ _log = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     config = ServerConfig()
     app.state.config = config
+    app.state.embedding_service = EmbeddingService(
+        config.data_dir, config.model_name
+    )
     yield
 
 
@@ -31,3 +35,10 @@ def get_server_config(app: AppDep) -> ServerConfig:
 
 
 ConfigDep = Annotated[ServerConfig, Depends(get_server_config)]
+
+
+def get_embedding_server(app: AppDep) -> EmbeddingService:
+    return app.state.embedding_service
+
+
+EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_server)]
