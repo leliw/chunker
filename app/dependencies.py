@@ -1,8 +1,8 @@
 import logging
-from typing import Annotated
+from typing import Annotated, Optional
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request, Header, HTTPException
 from fastapi.concurrency import asynccontextmanager
 
 from config import ServerConfig
@@ -42,3 +42,19 @@ def get_embedding_server(app: AppDep) -> EmbeddingService:
 
 
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_server)]
+
+
+async def verify_api_key(
+    config: ConfigDep,
+    x_api_key: Annotated[Optional[str], Header(description="Required for authentication")] = None,
+):
+    if config.api_key:
+        if not x_api_key:
+            _log.warning("Missing API key")
+            raise HTTPException(status_code=403, detail="Missing API key")
+        if x_api_key != config.api_key:
+            _log.warning("Invalid API key")
+            raise HTTPException(status_code=403, detail="Invalid API key")
+        _log.debug("API key verified")
+    else:
+        _log.warning("API key not required")

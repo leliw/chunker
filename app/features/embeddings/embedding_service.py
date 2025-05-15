@@ -26,7 +26,7 @@ class EmbeddingService:
         """
         Generate embeddings for the given text using the specified model.
         """
-        return self.model.encode(text).tolist()
+        return self.model.encode(text, show_progress_bar = False).tolist()
 
     def compare_embeddings(self, embedding1, embedding2) -> float:
         """

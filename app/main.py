@@ -1,6 +1,6 @@
-from dependencies import lifespan
+from dependencies import lifespan, verify_api_key
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from log_config import setup_logging
 from routers import (
     config,
@@ -9,7 +9,10 @@ from routers import (
 
 load_dotenv()
 setup_logging()
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    dependencies=[Depends(verify_api_key)]
+)
 
 
 app.include_router(config.router, prefix="/api/config")

@@ -1,8 +1,7 @@
 import os
-from pathlib import Path
-from sentence_transformers import SentenceTransformer
 
 from config import ServerConfig
+from sentence_transformers import SentenceTransformer
 
 
 def main():
@@ -28,6 +27,7 @@ def main():
             print(f"Error saving model: {e}")
 
     print("\nProcess completed.")
+
 
 if __name__ == "__main__":
     main()
