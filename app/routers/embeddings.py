@@ -1,12 +1,24 @@
-from fastapi import APIRouter
+from typing import Annotated
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from dependencies import EmbeddingServiceDep
+
+from dependencies import AppDep, ConfigDep
+from features.embeddings.embedding_service import EmbeddingService
 
 router = APIRouter(tags=["Embeddings"])
 
 
 class EmbeddingRequest(BaseModel):
     text: str
+
+
+def get_embedding_server(app: AppDep, config: ConfigDep) -> EmbeddingService:
+    return EmbeddingService(
+        config.data_dir, config.model_name, app.state.embedding_model
+    )
+
+
+EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_server)]
 
 
 @router.get("/models")

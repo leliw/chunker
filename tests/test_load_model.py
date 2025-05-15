@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 # Assuming your load_model.py is in the same directory or accessible via PYTHONPATH
 # If load_model.py is in a parent directory (e.g., app/), adjust the import accordingly.

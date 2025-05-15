@@ -3,10 +3,10 @@ from sentence_transformers import SentenceTransformer
 
 
 class EmbeddingService:
-    def __init__(self, data_dir: str = "./data", model_name: str = None):
+    def __init__(self, data_dir: str = "./data", model_name: str = None, model: SentenceTransformer = None):
         self.data_dir = data_dir
         self.model_name = model_name or self.get_models()[0]
-        self.model = SentenceTransformer(f"{data_dir}/{self.model_name}")
+        self.model = model or SentenceTransformer(f"{data_dir}/{self.model_name}")
 
     def get_models(self):
         """
