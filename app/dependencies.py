@@ -5,6 +5,7 @@ from config import ServerConfig
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.concurrency import asynccontextmanager
+from features.embeddings.embedding_service import EmbeddingService
 from sentence_transformers import SentenceTransformer
 
 load_dotenv()
@@ -37,9 +38,7 @@ ConfigDep = Annotated[ServerConfig, Depends(get_server_config)]
 
 async def verify_api_key(
     config: ConfigDep,
-    x_api_key: Annotated[
-        Optional[str], Header(description="Required for authentication")
-    ] = None,
+    x_api_key: Annotated[Optional[str], Header(description="Required for authentication")] = None,
 ):
     if config.api_key:
         if not x_api_key:
@@ -51,3 +50,10 @@ async def verify_api_key(
         _log.debug("API key verified")
     else:
         _log.warning("API key not required")
+
+
+def get_embedding_server(app: AppDep, config: ConfigDep) -> EmbeddingService:
+    return EmbeddingService(config.data_dir, config.model_name, app.state.embedding_model)
+
+
+EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_server)]

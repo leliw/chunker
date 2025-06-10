@@ -31,12 +31,10 @@ dev = [
 
 [project.optional-dependencies]
 cpu = [
-    "sentence-transformers>=4.1.0",
     "torch>=2.7.0",
     "torchvision>=0.22.0",
 ]
 gpu = [
-    "sentence-transformers>=4.1.0",
     "torch>=2.7.0",
     "torchvision>=0.22.0",
 ]

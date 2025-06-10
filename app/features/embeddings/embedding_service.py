@@ -1,9 +1,13 @@
 import os
+from typing import List, Optional
+
 from sentence_transformers import SentenceTransformer
 
 
 class EmbeddingService:
-    def __init__(self, data_dir: str = "./data", model_name: str = None, model: SentenceTransformer = None):
+    def __init__(
+        self, data_dir: str = "./data", model_name: Optional[str] = None, model: Optional[SentenceTransformer] = None
+    ):
         self.data_dir = data_dir
         self.model_name = model_name or self.get_models()[0]
         self.model = model or SentenceTransformer(f"{data_dir}/{self.model_name}")
@@ -22,15 +26,14 @@ class EmbeddingService:
                         models.append(name)
         return models
 
-    def generate_embeddings(self, text) -> list[float]:
+    def generate_embeddings(self, text) -> List[float]:
         """
         Generate embeddings for the given text using the specified model.
         """
-        return self.model.encode(text, show_progress_bar = False).tolist()
+        return self.model.encode(text, show_progress_bar=False).tolist()
 
     def compare_embeddings(self, embedding1, embedding2) -> float:
         """
         Compare two embeddings and return a similarity score.
         """
         return self.model.similarity(embedding1, embedding2).item()
-    

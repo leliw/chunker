@@ -1,5 +1,5 @@
-from typing import Annotated
-from dependencies import AppDep, ConfigDep
+from typing import Annotated, List
+from dependencies import AppDep, ConfigDep, EmbeddingServiceDep
 from fastapi import APIRouter, Depends
 from features.chunk.chunk_service import ChunkService
 from pydantic import BaseModel
@@ -17,6 +17,10 @@ ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]
 class ChunksRequest(BaseModel):
     text: str
 
+class ChunkWithEmmebeddings(BaseModel):
+    index: int
+    text: str
+    embedding: list[float]
 
 @router.post("/")
 async def create_chunks(
@@ -26,3 +30,15 @@ async def create_chunks(
     Create chunks for the given text.
     """
     return chunk_service.create_chunks(body.text)
+
+@router.post("/with-embeddings")
+async def create_chunks_with_embeddings(
+    chunk_service: ChunkServiceDep, embedding_service: EmbeddingServiceDep, body: ChunksRequest
+) -> List[ChunkWithEmmebeddings]:
+    """
+    Create chunks with embeddings for the given text.
+    """
+    ret = []
+    for i, t in enumerate(chunk_service.create_chunks(body.text)):
+        ret.append(ChunkWithEmmebeddings(index=i, text=t, embedding=embedding_service.generate_embeddings(t)))
+    return ret
