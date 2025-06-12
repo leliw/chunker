@@ -8,6 +8,7 @@ class LogConfig(BaseSettings):
     level: str = "INFO"
     log_config: str = "INFO"
     # Loggers
+    routers__pub_sub: str = "INFO"
 
 
 _log = logging.getLogger(__name__)
