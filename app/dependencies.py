@@ -5,6 +5,7 @@ from config import ServerConfig
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.concurrency import asynccontextmanager
+from features.chunk.chunk_service import ChunkService
 from features.embeddings.embedding_service import EmbeddingService
 from sentence_transformers import SentenceTransformer
 
@@ -50,6 +51,13 @@ async def verify_api_key(
         _log.debug("API key verified")
     else:
         _log.warning("API key not required")
+
+
+def get_chunk_service(app: AppDep, config: ConfigDep) -> ChunkService:
+    return ChunkService(app.state.embedding_model, config.model_max_seq_length)
+
+
+ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]
 
 
 def get_embedding_server(app: AppDep, config: ConfigDep) -> EmbeddingService:

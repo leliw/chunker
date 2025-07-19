@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "ampf[gcp]>=0.2.5",
     "fastapi[standard]>=0.115.12",
     "gunicorn>=23.0.0",
     "langchain-text-splitters>=0.3.8",
@@ -56,6 +57,9 @@ torchvision = [
   { index = "pytorch-cpu", extra = "cpu" },
   { index = "pytorch-cu128", extra = "gpu" },
 ]
+
+[[tool.uv.index]]
+url = "https://europe-west3-python.pkg.dev/development-428212/pip/simple/"
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
