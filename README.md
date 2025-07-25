@@ -6,7 +6,31 @@ The service:
 * Calculates embeddings for each chunk using the `ipipan/silver-retriever-base-v1.1` model
 * The chunk size is dependent on the model used, with a maximum of 512 tokens for the `ipipan/silver-retriever-base-v1.1` model
 
-## Usage
+## Build and Run
+
+To build and run the service, you can use Docker. The service is available in two versions: `cpu` and `gpu`. You can build the image using the provided `docker_build.sh` script.
+
+```bash
+source ./docker_build.sh
+```
+
+To run the service locally, you can run the following command:
+
+```bash
+source ./run_dev.sh
+```
+
+To run dockerized version of the service, you can use the following command:
+
+```bash
+source ./run_docker.sh
+```
+
+## API Documentation
+
+* Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+* ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+* OpenAPI spec: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
 
 ### REST API
 

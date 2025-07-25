@@ -3,7 +3,7 @@
 MODEL_NAME="ipipan/silver-retriever-base-v1.1"
 DOCKER_REGISTRY="europe-west3-docker.pkg.dev/development-428212/docker-eu"
 IMAGE_NAME="chunker"
-IMAGE_BASE_VERSION="0.0.5"
+IMAGE_BASE_VERSION="0.1.3"
 
 for EXTRA in "cpu" "gpu"
 do
