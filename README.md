@@ -1,10 +1,33 @@
 # Chunker
 
-The service:
+A FastAPI-based microservice responsible for chunking markdowns and calculating embeddings.
+
+---
+
+## Overview
+
+The **Chunker Service** handles core functionality such as:
 
 * Chunks markdown text into smaller parts using the `langchain` `RecursiveCharacterTextSplitter`
 * Calculates embeddings for each chunk using the `ipipan/silver-retriever-base-v1.1` model
 * The chunk size is dependent on the model used, with a maximum of 512 tokens for the `ipipan/silver-retriever-base-v1.1` model
+
+It is designed to be stateless and scalable as part of a microservices architecture.
+
+---
+
+## Architecture & Dependencies
+
+* **Framework**: FastAPI
+* **Web server**: Uvicorn / Gunicorn
+* **Authentication**: `x_api_key` header (optional)
+* **Chunking**: `langchain` library with `RecursiveCharacterTextSplitter`
+* **Embeddings**: `ipipan/silver-retriever-base-v1.1` model from Hugging Face
+* **Database**: None (stateless service)
+* **Containerization**: Docker
+* **Testing**: Pytest
+
+---
 
 ## Build and Run
 
