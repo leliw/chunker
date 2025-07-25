@@ -13,6 +13,8 @@ class ServerConfig(BaseSettings):
     model_max_seq_length: int = 512
     api_key: Optional[str] = None
 
+    chunks_response_topic: Optional[str] = None
+
 
 class ClientConfig(BaseModel):
     version: str
