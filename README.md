@@ -20,8 +20,27 @@ Input:
 
 * `POST /api/pub-sub/chunks`
 
+```python
+class ChunksRequest(BaseModel):
+    page_id: UUID
+    text: str
+```
+
 Output (first defined is used):
 
 * Topic defined in message in `response_topic` attribute
 * Topic defined in environment in `CHUNKS_RESPONSE_TOPIC` variable
 * Topic defined in environment with `sender_id` defined in message
+
+```python
+class ChunkWithEmmebeddings(BaseModel):
+    chunk_id: UUID = Field(default_factory=uuid4)
+    page_id: UUID
+    task_id: Optional[UUID] = None
+    chunk_index: int
+    language: str
+    text: str
+    token_count: Optional[int] = None
+    embedding: List[float]
+    created_at: datetime = datetime.now(timezone.utc)
+```

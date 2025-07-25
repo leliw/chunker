@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from sentence_transformers import SentenceTransformer
 
 from .recursive_splitter import RecursiveSplitter
@@ -13,9 +14,9 @@ class ChunkService:
             model=model, chunk_size=chunk_size, chunk_overlap=chunk_overlap
         )
 
-    def create_chunks(self, text: str) -> list[str]:
+    def create_chunks(self, text: str) -> List[Tuple[str, int]]:
         """
         Create chunks for the given text.
         """
         chunks = self.splitter.split(text)
-        return [chunk.page_content for chunk in chunks]
+        return [(chunk.page_content, self.splitter.count_tokens(chunk.page_content)) for chunk in chunks]
