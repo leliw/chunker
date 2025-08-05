@@ -48,12 +48,14 @@ async def handle_push(
         for i, t in enumerate(chunk_service.create_chunks(chunks_request.text)):
             ret = ChunkWithEmmebeddings(
                 page_id=chunks_request.page_id,
+                job_id=chunks_request.job_id,
                 task_id=chunks_request.task_id,
                 chunk_index=i,
+                language="pl",
                 text=t[0],
                 token_count=t[1],
-                language="pl",
                 embedding=embedding_service.generate_embeddings(t[0]),
+                metadata=chunks_request.metadata,
             )
             if response_topic_name:
                 topic = GcpTopic[ChunkWithEmmebeddings](response_topic_name)

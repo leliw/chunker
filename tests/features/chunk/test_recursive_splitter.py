@@ -5,7 +5,7 @@ from langchain_core.documents import Document
 from sentence_transformers import SentenceTransformer
 
 # Assuming tests are run from the root of the chunker project or PYTHONPATH is set appropriately
-from app.features.chunk.recursive_splitter import RecursiveSplitter
+from app.features.chunks.recursive_splitter import RecursiveSplitter
 
 
 @pytest.fixture

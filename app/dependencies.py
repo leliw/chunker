@@ -5,7 +5,7 @@ from config import ServerConfig
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.concurrency import asynccontextmanager
-from features.chunk.chunk_service import ChunkService
+from features.chunks.chunk_service import ChunkService
 from features.embeddings.embedding_service import EmbeddingService
 from sentence_transformers import SentenceTransformer
 

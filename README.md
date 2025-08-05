@@ -18,6 +18,7 @@ It is designed to be stateless and scalable as part of a microservices architect
 
 ## Architecture & Dependencies
 
+* **Package manager**: uv
 * **Framework**: FastAPI
 * **Web server**: Uvicorn / Gunicorn
 * **Authentication**: `x_api_key` header (optional)
