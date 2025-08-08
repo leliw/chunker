@@ -14,7 +14,7 @@ from routers.chunks import ChunkWithEmmebeddings, ChunksRequest
 
 @pytest.fixture
 def client(app: FastAPI):
-    app.include_router(pub_sub.router, prefix="/api/pub-sub")
+    app.include_router(pub_sub.router, prefix="/pub-sub")
     setup_logging()
     with TestClient(app) as client:
         yield client
@@ -39,7 +39,7 @@ def test_delivery_push_with_response_topic(client):
         mock_future = type("MockFuture", (), {"result": lambda self: "mocked-message-id"})()
         mock_publish.return_value = mock_future
         # When: A POST message to /pub-sub
-        response = client.post("/api/pub-sub/chunks", json=message.model_dump())
+        response = client.post("/pub-sub/requests", json=message.model_dump())
         r = response.json()
         # Then: The response status code is 200
         assert 200 == response.status_code
@@ -78,7 +78,7 @@ def test_delivery_push_without_response_topic(config: ServerConfig, client):
         mock_future = type("MockFuture", (), {"result": lambda self: "mocked-message-id"})()
         mock_publish.return_value = mock_future
         # When: A POST message to /pub-sub
-        response = client.post("/api/pub-sub/chunks", json=message.model_dump())
+        response = client.post("/pub-sub/requests", json=message.model_dump())
         r = response.json()
         # Then: The response status code is 200
         assert 200 == response.status_code
@@ -119,7 +119,7 @@ def test_delivery_push_with_sender_id(config: ServerConfig, client):
         mock_future = type("MockFuture", (), {"result": lambda self: "mocked-message-id"})()
         mock_publish.return_value = mock_future
         # When: A POST message to /pub-sub
-        response = client.post("/api/pub-sub/chunks", json=message.model_dump())
+        response = client.post("/pub-sub/requests", json=message.model_dump())
         r = response.json()
         # Then: The response status code is 200
         assert 200 == response.status_code

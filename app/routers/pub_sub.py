@@ -25,7 +25,7 @@ class PushRequest(BaseModel):
     subscription: str
 
 
-@router.post("/chunks")
+@router.post("/requests")
 async def handle_push(
     config: ConfigDep, chunk_service: ChunkServiceDep, embedding_service: EmbeddingServiceDep, request: PushRequest
 ):

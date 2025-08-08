@@ -66,7 +66,7 @@ source ./run_docker.sh
 
 Input:
 
-* `POST /api/pub-sub/chunks`
+* `POST /pub-sub/reqests`
 
 ```python
 class ChunksRequest(BaseModel):
