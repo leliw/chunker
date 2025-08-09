@@ -23,13 +23,16 @@ async def create_chunks_with_embeddings(
     Create chunks with embeddings for the given text.
     """
     ret = []
-    for i, t in enumerate(chunk_service.create_chunks(chunks_request.text)):
+    chunks = chunk_service.create_chunks(chunks_request.text)
+    total_chunks = len(chunks)
+    for i, t in enumerate(chunks):
         ret.append(
             ChunkWithEmmebeddings(
                 page_id=chunks_request.page_id,
                 job_id=chunks_request.job_id,
                 task_id=chunks_request.task_id,
                 chunk_index=i,
+                total_chunks=total_chunks,
                 language="pl",
                 text=t[0],
                 token_count=t[1],

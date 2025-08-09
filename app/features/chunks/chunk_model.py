@@ -24,6 +24,7 @@ class ChunkWithEmmebeddings(BaseModel):
     job_id: Optional[UUID] = None
     task_id: Optional[UUID] = None
     chunk_index: int
+    total_chunks: int
     language: str
     text: str
     token_count: Optional[int] = None

@@ -45,12 +45,15 @@ async def handle_push(
         _log.debug("Data: %s", decoded_data)
 
         chunks_request = ChunksRequest.model_validate_json(decoded_data)
-        for i, t in enumerate(chunk_service.create_chunks(chunks_request.text)):
+        chunks = chunk_service.create_chunks(chunks_request.text)
+        total_chunks = len(chunks)
+        for i, t in enumerate(chunks):
             ret = ChunkWithEmmebeddings(
                 page_id=chunks_request.page_id,
                 job_id=chunks_request.job_id,
                 task_id=chunks_request.task_id,
                 chunk_index=i,
+                total_chunks=total_chunks,
                 language="pl",
                 text=t[0],
                 token_count=t[1],
