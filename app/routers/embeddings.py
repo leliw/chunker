@@ -20,3 +20,10 @@ async def generate_embeddings(embdedding_service: EmbeddingServiceDep, body: Emb
     Generate embeddings for the given text using the specified model.
     """
     return embdedding_service.generate_embeddings(body.text)
+
+@router.post("/generate/query")
+async def generate_query_embeddings(embdedding_service: EmbeddingServiceDep, body: EmbeddingRequest) -> list[float]:
+    """
+    Generate embeddings for the given query using the specified model.
+    """
+    return embdedding_service.generate_query_embeddings(body.text)

@@ -61,6 +61,7 @@ source ./run_docker.sh
 * `POST /api/chunks` - Accepts a JSON body with a `text` field containing the markdown text to be chunked.
 * `POST /api/chunks/with-embeddings` - Accepts a JSON body with a `text` field containing the markdown text to be chunked and embedded, and returns the embeddings for each chunk.
 * `POST /api/embeddings/generate` - Accepts a JSON body with a `text` field containing the markdown text to be chunked and embedded.
+* `POST /api/embeddings/generate/query` - Accepts a JSON body with a `text` field containing the **query** text to be chunked and embedded.
 
 ### Google Cloud Platform Pub/Sub
 

@@ -32,6 +32,16 @@ class EmbeddingService:
         """
         return self.model.encode(text, show_progress_bar=False).tolist()
 
+    def generate_query_embeddings(self, text) -> List[float]:
+        """
+        Generate embeddings for the given *question* using the specified model.
+        """
+        if "silver-retriever" in self.model_name and not text.startswith("Pytanie:"):
+            # Polish Silver Retriever model expects the input question to be prefixed with "Pytanie:"
+            return self.generate_embeddings(f"Pytanie: {text}")
+        else:
+            return self.generate_embeddings(text)
+
     def compare_embeddings(self, embedding1, embedding2) -> float:
         """
         Compare two embeddings and return a similarity score.
