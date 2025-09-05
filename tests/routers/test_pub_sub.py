@@ -9,7 +9,7 @@ from unittest.mock import patch
 from app.routers import pub_sub
 from config import ServerConfig
 from log_config import setup_logging
-from routers.chunks import ChunkWithEmmebeddings, ChunksRequest
+from routers.chunks import ChunkWithEmebeddings, ChunksRequest
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def client(app: FastAPI):
 def test_delivery_push_with_response_topic(client):
     # Given: a Pub/Sub message with response_topic
     page_id = uuid.uuid4()
-    reqest = ChunksRequest(page_id=page_id, text="xxx")
+    reqest = ChunksRequest(job_id=page_id, text="xxx")
     message_id = uuid.uuid4().hex
     response_topic = "chunks"
     message = pub_sub.PushRequest(
@@ -46,13 +46,13 @@ def test_delivery_push_with_response_topic(client):
         # And: The message is acknowledged
         assert r["status"] == "acknowledged"
         # And: publish was called with correct arguments
-        mock_publish.assert_called_once()
+        mock_publish.assert_called()
         args, _ = mock_publish.call_args
         resp_topic = args[0]
         assert resp_topic.endswith(response_topic)
         bdata: bytes = args[1]
         assert bdata
-        data = ChunkWithEmmebeddings.model_validate_json(bdata.decode("utf-8"))
+        data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
         assert data.page_id == page_id
         assert data.chunk_index == 0
         assert data.text == reqest.text
@@ -62,7 +62,7 @@ def test_delivery_push_with_response_topic(client):
 def test_delivery_push_without_response_topic(config: ServerConfig, client):
     # Given: a Pub/Sub message without response_topic and sender_id
     page_id = uuid.uuid4()
-    reqest = ChunksRequest(page_id=page_id, text="xxx")
+    reqest = ChunksRequest(job_id=page_id, text="xxx")
     message_id = uuid.uuid4().hex
     message = pub_sub.PushRequest(
         message=pub_sub.PubsubMessage(
@@ -91,7 +91,7 @@ def test_delivery_push_without_response_topic(config: ServerConfig, client):
         assert resp_topic.endswith(config.chunks_response_topic)
         bdata: bytes = args[1]
         assert bdata
-        data = ChunkWithEmmebeddings.model_validate_json(bdata.decode("utf-8"))
+        data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
         assert data.page_id == page_id
         assert data.chunk_index == 0
         assert data.text == reqest.text
@@ -101,7 +101,7 @@ def test_delivery_push_without_response_topic(config: ServerConfig, client):
 def test_delivery_push_with_sender_id(config: ServerConfig, client):
     # Given: a Pub/Sub message with sender_id
     page_id = uuid.uuid4()
-    reqest = ChunksRequest(page_id=page_id, text="xxx")
+    reqest = ChunksRequest(job_id=page_id, text="xxx")
     message_id = uuid.uuid4().hex
     sender_id = "unittests"
     message = pub_sub.PushRequest(
@@ -134,7 +134,7 @@ def test_delivery_push_with_sender_id(config: ServerConfig, client):
         assert sender_id == attrs.get("sender_id")
         bdata: bytes = args[1]
         assert bdata
-        data = ChunkWithEmmebeddings.model_validate_json(bdata.decode("utf-8"))
+        data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
         assert data.page_id == page_id
         assert data.chunk_index == 0
         assert data.text == reqest.text

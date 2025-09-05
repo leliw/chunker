@@ -25,6 +25,8 @@ class ServerConfig(BaseSettings):
     api_key: Optional[str] = None
 
     chunks_response_topic: Optional[str] = None
+    chunks_embedding_at_once: int = 4
+    request_embeddings_topic: str = "chunker-embeddings-requests"
 
 
 class ClientConfig(BaseModel):

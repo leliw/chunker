@@ -18,7 +18,7 @@ class ChunksRequest(BaseModel):
     metadata: Optional[Dict[str, str]] = None
 
 
-class ChunkWithEmmebeddings(BaseModel):
+class ChunkWithEmebeddings(BaseModel):
     chunk_id: UUID = Field(default_factory=uuid4)
     page_id: Optional[UUID] = None
     job_id: Optional[UUID] = None

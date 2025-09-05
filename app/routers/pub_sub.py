@@ -1,11 +1,11 @@
 import logging
-from typing import Dict, Optional
+from typing import AsyncIterator, Dict, Optional
 
-from ampf.gcp import GcpPubsubRequest, GcpTopic, gcp_pubsub_push_handler
+from ampf.gcp import GcpPubsubRequest, gcp_pubsub_push_handler
 from dependencies import ChunkServiceDep, ConfigDep, EmbeddingServiceDep
 from fastapi import APIRouter
 from pydantic import BaseModel
-from routers.chunks import ChunksRequest, ChunkWithEmmebeddings
+from routers.chunks import ChunksRequest, ChunkWithEmebeddings
 
 _log = logging.getLogger(__name__)
 
@@ -32,23 +32,19 @@ async def handle_push(
     embedding_service: EmbeddingServiceDep,
     request: GcpPubsubRequest,
     payload: ChunksRequest,
-) -> None:
-    if request.message.attributes:
-        response_topic_name = request.message.attributes.get("response_topic")
-        sender_id = request.message.attributes.get("sender_id")
-    else:
-        response_topic_name = None
-        sender_id = None
-    if not response_topic_name and config.chunks_response_topic:
-        response_topic_name = config.chunks_response_topic
-
-    _log.info("Received: %s ID: %s", request.subscription, request.message.messageId)
-
+) -> AsyncIterator[ChunkWithEmebeddings]:
+    if config.chunks_response_topic:
+        request.set_default_response_topic(config.chunks_response_topic)
     chunks = chunk_service.create_chunks(payload.text)
     total_chunks = len(chunks)
+    if total_chunks > config.chunks_embedding_at_once:
+        request.forward_response_to_topic(config.request_embeddings_topic)
+        generate_embedding = False
+    else:
+        generate_embedding = True
     for i, t in enumerate(chunks):
-        ret = ChunkWithEmmebeddings(
-            page_id=payload.page_id,
+        ret = ChunkWithEmebeddings(
+            page_id=payload.job_id,
             job_id=payload.job_id,
             task_id=payload.task_id,
             chunk_index=i,
@@ -56,9 +52,16 @@ async def handle_push(
             language="pl",
             text=t[0],
             token_count=t[1],
-            embedding=embedding_service.generate_embeddings(t[0]),
+            embedding=embedding_service.generate_embeddings(t[0]) if generate_embedding else [],
             metadata=payload.metadata,
         )
-        if response_topic_name:
-            topic = GcpTopic[ChunkWithEmmebeddings](response_topic_name)
-            topic.publish(ret, {"sender_id": sender_id} if sender_id else None)
+        yield ret
+
+
+@router.post("/requests/embeddings")
+@gcp_pubsub_push_handler()
+async def handle_push_embeddings(
+    embedding_service: EmbeddingServiceDep, payload: ChunkWithEmebeddings
+) -> ChunkWithEmebeddings:
+    payload.embedding = embedding_service.generate_embeddings(payload.text)
+    return payload
