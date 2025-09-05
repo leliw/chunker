@@ -1,6 +1,6 @@
 from dependencies import lifespan, verify_api_key
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
 from log_config import setup_logging
 from routers import (
     chunks,
@@ -8,12 +8,15 @@ from routers import (
     embeddings,
     pub_sub,
 )
+from version import __version__
 
 load_dotenv()
 setup_logging()
 app = FastAPI(
     lifespan=lifespan,
-    dependencies=[Depends(verify_api_key)]
+    title="Chunker",
+    version=__version__,
+    dependencies=[Depends(verify_api_key)],
 )
 
 

@@ -1,9 +1,6 @@
 #!/bin/bash
 
-MODEL_NAME="ipipan/silver-retriever-base-v1.1"
-DOCKER_REGISTRY="europe-west3-docker.pkg.dev/development-428212/docker-eu"
-IMAGE_NAME="chunker"
-IMAGE_BASE_VERSION=$(uv run app/config.py)
+source ./docker_config.sh
 
 for EXTRA in "cpu" "gpu"
 do
@@ -17,7 +14,6 @@ do
     --tag $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_VERSION .
     # --progress=plain \
 
-    # docker push $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_VERSION
 done
 
 for EXTRA in "cpu" "gpu"

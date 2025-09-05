@@ -1,24 +1,14 @@
-import os
-import tomllib
 from typing import Optional
 
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
-def get_version_from_pyproject():
-    pyproject_path = os.path.join(os.path.dirname(__file__), "..", "pyproject.toml")
-    if not os.path.exists(pyproject_path):
-        pyproject_path = os.path.join(os.path.dirname(__file__), "pyproject.toml")
-    with open(pyproject_path, "rb") as f:
-        data = tomllib.load(f)
-    return data["project"]["version"]
+from version import __version__
 
 
 class ServerConfig(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
-    version: str = get_version_from_pyproject()
+    version: str = __version__
     data_dir: str = "./data"
     model_name: str = ""
     model_max_seq_length: int = 512
@@ -31,7 +21,3 @@ class ServerConfig(BaseSettings):
 
 class ClientConfig(BaseModel):
     version: str
-
-if __name__ == "__main__":
-    config = ServerConfig()
-    print(config.version)
