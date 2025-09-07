@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.routers import embeddings
+from app.routers.embeddings import EmbeddingResponse
 
 
 @pytest.fixture
@@ -20,6 +21,8 @@ def test_get_models(client):
     assert 200 == response.status_code
     # And: The response is list of models
     assert isinstance(r, list)
+    assert "ipipan/silver-retriever-base-v1.1" in r
+
 
 def test_generate_embeddings(client):
     # Given: A model name and some text
@@ -35,19 +38,20 @@ def test_generate_embeddings(client):
     # And: The response is a list of floats
     assert all(isinstance(i, float) for i in r)
 
+
 def test_generate_query_embeddings(client):
     # Given: A model name and some text
     text = "This is a test sentence."
     # When: A POST request is made to /api/embeddings/generate/query
     response = client.post("/api/embeddings/generate/query", json={"text": text})
-    r = response.json()
+    r = EmbeddingResponse.model_validate(response.json())
     # Then: The response status code is 200
     assert 200 == response.status_code
     # And: The response is list of embeddings
-    assert isinstance(r, list)
-    assert len(r) > 0
+    assert isinstance(r, EmbeddingResponse)
+    assert len(r.embedding) > 0
     # And: The response is a list of floats
-    assert all(isinstance(i, float) for i in r)
+    assert all(isinstance(i, float) for i in r.embedding)
     # And: It is different from regular embeddings
     response = client.post("/api/embeddings/generate", json={"text": text})
     r2 = response.json()

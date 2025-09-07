@@ -49,6 +49,7 @@ async def handle_push(
             chunk_index=i,
             total_chunks=total_chunks,
             language="pl",
+            embedding_model_name="ipipan/silver-retriever-base-v1.1",
             text=t[0],
             token_count=t[1],
             embedding=embedding_service.generate_embeddings(t[0]) if generate_embedding else [],

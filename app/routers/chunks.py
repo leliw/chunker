@@ -28,12 +28,12 @@ async def create_chunks_with_embeddings(
     for i, t in enumerate(chunks):
         ret.append(
             ChunkWithEmebeddings(
-                page_id=chunks_request.job_id,
                 job_id=chunks_request.job_id,
                 task_id=chunks_request.task_id,
                 chunk_index=i,
                 total_chunks=total_chunks,
                 language="pl",
+                embedding_model_name="ipipan/silver-retriever-base-v1.1",
                 text=t[0],
                 token_count=t[1],
                 embedding=embedding_service.generate_embeddings(t),

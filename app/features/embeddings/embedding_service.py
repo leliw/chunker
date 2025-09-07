@@ -12,7 +12,7 @@ class EmbeddingService:
         self.model_name = model_name or self.get_models()[0]
         self.model = model or SentenceTransformer(f"{data_dir}/{self.model_name}")
 
-    def get_models(self):
+    def get_models(self) -> List[str]:
         """
         Return a list of available models.
         """
