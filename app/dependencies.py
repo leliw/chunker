@@ -60,8 +60,8 @@ def get_chunk_service(app: AppDep, config: ConfigDep) -> ChunkService:
 ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]
 
 
-def get_embedding_server(app: AppDep, config: ConfigDep) -> EmbeddingService:
+def get_embedding_service(app: AppDep, config: ConfigDep) -> EmbeddingService:
     return EmbeddingService(config.data_dir, config.model_name, app.state.embedding_model)
 
 
-EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_server)]
+EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]

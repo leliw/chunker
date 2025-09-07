@@ -32,7 +32,7 @@ class EmbeddingService:
         """
         return self.model.encode(text, show_progress_bar=False).tolist()
 
-    def generate_query_embeddings(self, text) -> List[float]:
+    def generate_query_embeddings(self, text: str) -> List[float]:
         """
         Generate embeddings for the given *question* using the specified model.
         """
