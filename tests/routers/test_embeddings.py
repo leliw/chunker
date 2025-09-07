@@ -56,3 +56,20 @@ def test_generate_query_embeddings(client):
     response = client.post("/api/embeddings/generate", json={"text": text})
     r2 = response.json()
     assert r != r2
+
+
+@pytest.mark.parametrize(
+    ["model_name", "length"],
+    [
+        ("ipipan/silver-retriever-base-v1.1", 768),
+        ("Qwen/Qwen3-Embedding-0.6B", 1024),
+    ],
+)
+def test_generate_embeddings_by_model_name(client, model_name, length):
+    # Given: A model name and some text
+    text = "This is a test sentence."
+    # When: A POST request is made to /api/embeddings/generate
+    response = client.post("/api/embeddings/generate", json={"text": text, "embedding_model_name": model_name})
+    r = response.json()
+    # Then: Embedding size is 768 or 1024
+    assert len(r) == length

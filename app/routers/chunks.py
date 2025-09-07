@@ -12,7 +12,7 @@ async def create_chunks(chunk_service: ChunkServiceDep, body: ChunksRequest) -> 
     """
     Create chunks for the given text.
     """
-    return [c[0] for c in chunk_service.create_chunks(body.text)]
+    return [c[0] for c in chunk_service.create_chunks(body.embedding_model_name, body.text)]
 
 
 @router.post("/with-embeddings")
@@ -23,7 +23,7 @@ async def create_chunks_with_embeddings(
     Create chunks with embeddings for the given text.
     """
     ret = []
-    chunks = chunk_service.create_chunks(chunks_request.text)
+    chunks = chunk_service.create_chunks(chunks_request.embedding_model_name, chunks_request.text)
     total_chunks = len(chunks)
     for i, t in enumerate(chunks):
         ret.append(
@@ -32,11 +32,11 @@ async def create_chunks_with_embeddings(
                 task_id=chunks_request.task_id,
                 chunk_index=i,
                 total_chunks=total_chunks,
-                language="pl",
-                embedding_model_name="ipipan/silver-retriever-base-v1.1",
+                language=chunks_request.language,
+                embedding_model_name=chunks_request.embedding_model_name,
                 text=t[0],
                 token_count=t[1],
-                embedding=embedding_service.generate_embeddings(t),
+                embedding=embedding_service.generate_embeddings(chunks_request.embedding_model_name, t[0]),
                 metadata=chunks_request.metadata,
             )
         )

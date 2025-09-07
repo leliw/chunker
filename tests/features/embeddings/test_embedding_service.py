@@ -5,17 +5,18 @@ def test_loading_model():
     # Given: A model name
     model_name = "ipipan/silver-retriever-base-v1.1"
     # When: The model is loaded
-    embedding_service = EmbeddingService(model_name=model_name)
+    embedding_service = EmbeddingService()
+    model = embedding_service.get_model(model_name)
     # Then: The model should be loaded successfully
-    assert embedding_service.model_name == model_name
-    assert embedding_service.model is not None
+    assert model_name in embedding_service.models
+    assert model is not None
 
 def test_get_models():
     # Given: A data directory with models
     data_dir = "./data"
     # When: The models are retrieved
     embedding_service = EmbeddingService(data_dir=data_dir)
-    models = embedding_service.get_models()
+    models = embedding_service.get_model_names()
     # Then: The models should be a list of strings
     assert isinstance(models, list)
     assert len(models) > 0
@@ -28,8 +29,8 @@ def test_generate_embeddings():
     model_name = "ipipan/silver-retriever-base-v1.1"
     text = "This is a test sentence."
     # When: The model is loaded and embeddings are generated
-    embedding_service = EmbeddingService(model_name=model_name)
-    embeddings = embedding_service.generate_embeddings(text)
+    embedding_service = EmbeddingService()
+    embeddings = embedding_service.generate_embeddings(model_name,text)
     # Then: The embeddings should be generated successfully
     assert isinstance(embeddings, list)
     assert len(embeddings) > 0
@@ -40,11 +41,11 @@ def test_compare_embeddings():
     text1 = "This is a test sentence."
     text2 = "This is another test sentence."
     # When: The model is loaded and embeddings are generated
-    embedding_service = EmbeddingService(model_name=model_name)
-    embedding1 = embedding_service.generate_embeddings(text1)
-    embedding2 = embedding_service.generate_embeddings(text2)
+    embedding_service = EmbeddingService()
+    embedding1 = embedding_service.generate_embeddings(model_name, text1)
+    embedding2 = embedding_service.generate_embeddings(model_name, text2)
     # When: The embeddings are compared
-    similarity_score = embedding_service.compare_embeddings(embedding1, embedding2)
+    similarity_score = embedding_service.compare_embeddings(model_name, embedding1, embedding2)
     # Then: The similarity score should be a float
     assert isinstance(similarity_score, float)
     # And: The similarity score should be between 0 and 1

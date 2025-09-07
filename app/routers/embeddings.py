@@ -21,7 +21,7 @@ class EmbeddingResponse(BaseModel):
 
 @router.get("/models")
 async def get_models(embdedding_service: EmbeddingServiceDep) -> List[str]:
-    return embdedding_service.get_models()
+    return embdedding_service.get_model_names()
 
 
 @router.post("/generate")
@@ -29,14 +29,15 @@ async def generate_embeddings(embdedding_service: EmbeddingServiceDep, body: Emb
     """
     Generate embeddings for the given text using the specified model.
     """
-    return embdedding_service.generate_embeddings(body.text)
+    return embdedding_service.generate_embeddings(body.embedding_model_name, body.text)
 
 
 @router.post("/generate/query")
-async def generate_query_embeddings(
+def generate_query_embeddings(
     embdedding_service: EmbeddingServiceDep, body: EmbeddingRequest
 ) -> EmbeddingResponse:
     """
     Generate embeddings for the given query using the specified model.
     """
-    return EmbeddingResponse(embedding=embdedding_service.generate_query_embeddings(body.text))
+    embedding = embdedding_service.generate_query_embeddings(body.embedding_model_name, body.text)
+    return EmbeddingResponse(embedding=embedding)

@@ -22,7 +22,7 @@ def mock_embedding_service_dependencies(mocker):
     # Mock get_models to prevent os.listdir errors and ensure a model name is returned
     # This is called if config.model_name is not set.
     mocker.patch(
-        "app.features.embeddings.embedding_service.EmbeddingService.get_models",
+        "app.features.embeddings.embedding_service.EmbeddingService.get_model_names",
         return_value=["mock_model_org/mock_model_name"],  # Must return a non-empty list
         autospec=True,
     )

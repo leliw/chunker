@@ -7,7 +7,6 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.concurrency import asynccontextmanager
 from features.chunks.chunk_service import ChunkService
 from features.embeddings.embedding_service import EmbeddingService
-from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 
@@ -17,9 +16,7 @@ _log = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     config = ServerConfig()
-    embedding_model = SentenceTransformer(f"{config.data_dir}/{config.model_name}")
     app.state.config = config
-    app.state.embedding_model = embedding_model
     yield
 
 
@@ -53,15 +50,17 @@ async def verify_api_key(
         _log.warning("API key not required")
 
 
-def get_chunk_service(app: AppDep, config: ConfigDep) -> ChunkService:
-    return ChunkService(app.state.embedding_model, config.model_max_seq_length)
-
-
-ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]
-
-
-def get_embedding_service(app: AppDep, config: ConfigDep) -> EmbeddingService:
-    return EmbeddingService(config.data_dir, config.model_name, app.state.embedding_model)
+def get_embedding_service(config: ConfigDep) -> EmbeddingService:
+    # EmbeddingService will also need to select a model
+    return EmbeddingService(config.data_dir)
 
 
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]
+
+
+def get_chunk_service(embedding_service: EmbeddingServiceDep) -> ChunkService:
+    # Pass the dictionary of models to the ChunkService
+    return ChunkService(embedding_service)
+
+
+ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]

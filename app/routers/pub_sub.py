@@ -35,7 +35,7 @@ async def handle_push(
 ) -> AsyncIterator[ChunkWithEmebeddings]:
     if config.chunks_response_topic:
         request.set_default_response_topic(config.chunks_response_topic)
-    chunks = chunk_service.create_chunks(payload.text)
+    chunks = chunk_service.create_chunks(payload.embedding_model_name, payload.text)
     total_chunks = len(chunks)
     if total_chunks > config.chunks_embedding_at_once:
         request.forward_response_to_topic(config.request_embeddings_topic)
@@ -52,7 +52,7 @@ async def handle_push(
             embedding_model_name="ipipan/silver-retriever-base-v1.1",
             text=t[0],
             token_count=t[1],
-            embedding=embedding_service.generate_embeddings(t[0]) if generate_embedding else [],
+            embedding=embedding_service.generate_embeddings(payload.embedding_model_name, t[0]) if generate_embedding else [],
             metadata=payload.metadata,
         )
         yield ret
@@ -63,5 +63,5 @@ async def handle_push(
 async def handle_push_embeddings(
     embedding_service: EmbeddingServiceDep, payload: ChunkWithEmebeddings
 ) -> ChunkWithEmebeddings:
-    payload.embedding = embedding_service.generate_embeddings(payload.text)
+    payload.embedding = embedding_service.generate_embeddings(payload.embedding_model_name, payload.text)
     return payload

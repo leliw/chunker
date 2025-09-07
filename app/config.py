@@ -10,7 +10,8 @@ class ServerConfig(BaseSettings):
 
     version: str = __version__
     data_dir: str = "./data"
-    model_names: list[str] = []
+    model_names: list[str] = ["ipipan/silver-retriever-base-v1.1", "Qwen/Qwen3-Embedding-0.6B"]
+
     api_key: Optional[str] = None
 
     chunks_response_topic: Optional[str] = None
