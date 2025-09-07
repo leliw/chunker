@@ -1,8 +1,8 @@
-
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
-from uuid import UUID, uuid4
-from pydantic import BaseModel, Field
+from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class GcpFile(BaseModel):
