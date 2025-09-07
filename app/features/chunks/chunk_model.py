@@ -11,7 +11,6 @@ class GcpFile(BaseModel):
 
 
 class ChunksRequest(BaseModel):
-    page_id: Optional[UUID] = None
     job_id: Optional[UUID] = None
     task_id: Optional[UUID] = None
     text: str
@@ -19,8 +18,6 @@ class ChunksRequest(BaseModel):
 
 
 class ChunkWithEmebeddings(BaseModel):
-    chunk_id: UUID = Field(default_factory=uuid4)
-    page_id: Optional[UUID] = None
     job_id: Optional[UUID] = None
     task_id: Optional[UUID] = None
     chunk_index: int

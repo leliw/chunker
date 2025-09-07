@@ -22,8 +22,8 @@ def client(app: FastAPI):
 
 def test_delivery_push_with_response_topic(client):
     # Given: a Pub/Sub message with response_topic
-    page_id = uuid.uuid4()
-    reqest = ChunksRequest(job_id=page_id, text="xxx")
+    job_id = uuid.uuid4()
+    reqest = ChunksRequest(job_id=job_id, text="xxx")
     message_id = uuid.uuid4().hex
     response_topic = "chunks"
     message = pub_sub.PushRequest(
@@ -53,7 +53,6 @@ def test_delivery_push_with_response_topic(client):
         bdata: bytes = args[1]
         assert bdata
         data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
-        assert data.page_id == page_id
         assert data.chunk_index == 0
         assert data.text == reqest.text
         assert data.embedding
@@ -61,8 +60,8 @@ def test_delivery_push_with_response_topic(client):
 
 def test_delivery_push_without_response_topic(config: ServerConfig, client):
     # Given: a Pub/Sub message without response_topic and sender_id
-    page_id = uuid.uuid4()
-    reqest = ChunksRequest(job_id=page_id, text="xxx")
+    job_id = uuid.uuid4()
+    reqest = ChunksRequest(job_id=job_id, text="xxx")
     message_id = uuid.uuid4().hex
     message = pub_sub.PushRequest(
         message=pub_sub.PubsubMessage(
@@ -92,7 +91,6 @@ def test_delivery_push_without_response_topic(config: ServerConfig, client):
         bdata: bytes = args[1]
         assert bdata
         data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
-        assert data.page_id == page_id
         assert data.chunk_index == 0
         assert data.text == reqest.text
         assert data.embedding
@@ -100,8 +98,8 @@ def test_delivery_push_without_response_topic(config: ServerConfig, client):
 
 def test_delivery_push_with_sender_id(config: ServerConfig, client):
     # Given: a Pub/Sub message with sender_id
-    page_id = uuid.uuid4()
-    reqest = ChunksRequest(job_id=page_id, text="xxx")
+    job_id = uuid.uuid4()
+    reqest = ChunksRequest(job_id=job_id, text="xxx")
     message_id = uuid.uuid4().hex
     sender_id = "unittests"
     message = pub_sub.PushRequest(
@@ -135,7 +133,6 @@ def test_delivery_push_with_sender_id(config: ServerConfig, client):
         bdata: bytes = args[1]
         assert bdata
         data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
-        assert data.page_id == page_id
         assert data.chunk_index == 0
         assert data.text == reqest.text
         assert data.embedding

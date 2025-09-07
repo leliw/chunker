@@ -44,7 +44,6 @@ async def handle_push(
         generate_embedding = True
     for i, t in enumerate(chunks):
         ret = ChunkWithEmebeddings(
-            page_id=payload.job_id,
             job_id=payload.job_id,
             task_id=payload.task_id,
             chunk_index=i,
