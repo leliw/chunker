@@ -65,14 +65,18 @@ source ./run_docker.sh
 
 ### Google Cloud Platform Pub/Sub
 
-Input:
+#### POST /pub-sub/reqests
 
-* `POST /pub-sub/reqests`
+Splits the provided text into chunks and generates embeddings for each chunk.
 
 ```python
+# app/features/chunks/chunk_model.py
+
 class ChunksRequest(BaseModel):
-    page_id: UUID
+    job_id: Optional[UUID] = None
+    task_id: Optional[UUID] = None
     text: str
+    metadata: Optional[Dict[str, str]] = None
 ```
 
 Output (first defined is used):
@@ -82,9 +86,10 @@ Output (first defined is used):
 * Topic defined in environment with `sender_id` defined in message
 
 ```python
-class ChunkWithEmmebeddings(BaseModel):
-    chunk_id: UUID = Field(default_factory=uuid4)
-    page_id: UUID
+# app/features/chunks/chunk_model.py
+
+class ChunkWithEmebeddings(BaseModel):
+    job_id: Optional[UUID] = None
     task_id: Optional[UUID] = None
     chunk_index: int
     total_chunks: int
@@ -92,5 +97,13 @@ class ChunkWithEmmebeddings(BaseModel):
     text: str
     token_count: Optional[int] = None
     embedding: List[float]
+    metadata: Optional[Dict[str, str]] = None
     created_at: datetime = datetime.now(timezone.utc)
 ```
+
+If number of chunks is greater than 4 (`config.chunks_embedding_at_once`)the embeddings are generated in separate steps to avoid timeouts.
+Chunks without embeddings are sent to the "chunker-embeddings-requests" topic (`config.embeddings_request_topic`).
+
+#### POST /pub-sub/requests/embeddings
+
+Generates embeddings for the provided chunk of text. Input and output models are the same as in the `ChunkWithEmebeddings` class.
