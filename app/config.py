@@ -10,8 +10,7 @@ class ServerConfig(BaseSettings):
 
     version: str = __version__
     data_dir: str = "./data"
-    model_name: str = ""
-    model_max_seq_length: int = 512
+    model_names: list[str] = []
     api_key: Optional[str] = None
 
     chunks_response_topic: Optional[str] = None

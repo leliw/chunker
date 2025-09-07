@@ -1,4 +1,4 @@
-# ------ Stage 1: Angular project ------
+# ------ Stage 1: Load models ------
     FROM python:3.12-slim AS models
 
     ARG MODEL_NAME="ipipan/silver-retriever-base-v1.1"
