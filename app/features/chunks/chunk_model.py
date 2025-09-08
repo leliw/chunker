@@ -13,8 +13,8 @@ class GcpFile(BaseModel):
 class ChunksRequest(BaseModel):
     job_id: Optional[UUID] = None
     task_id: Optional[UUID] = None
-    language: str = "pl"
-    embedding_model_name: str = "ipipan/silver-retriever-base-v1.1"
+    language: Optional[str] = None
+    embedding_model_name: Optional[str] = None
     text: str
     metadata: Optional[Dict[str, str]] = None
 

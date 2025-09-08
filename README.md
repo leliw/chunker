@@ -1,5 +1,8 @@
 # Chunker
 
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-latest-blue)
+
 A FastAPI-based microservice responsible for chunking markdowns and calculating embeddings.
 
 ---
@@ -10,6 +13,7 @@ The **Chunker Service** handles core functionality such as:
 
 * Chunks markdown text into smaller parts using the `langchain` `RecursiveCharacterTextSplitter`
 * Calculates embeddings for each chunk using the `ipipan/silver-retriever-base-v1.1` for polis lanquage or `Qwen/Qwen3-Embedding-0.6B` for english language
+* Detects the language of the input text using the `lingua-language-detector` library
 * The chunk size is dependent on the model used
 
 It is designed to be stateless and scalable as part of a microservices architecture.
@@ -24,7 +28,9 @@ It is designed to be stateless and scalable as part of a microservices architect
 * **Authentication**: `x_api_key` header (optional)
 * **Chunking**: `langchain` library with `RecursiveCharacterTextSplitter`
 * **Embeddings**: `ipipan/silver-retriever-base-v1.1` and `Qwen/Qwen3-Embedding-0.6B` models from Hugging Face
+* **Language detection**: `lingua-language-detector` library
 * **Database**: None (stateless service)
+* **Message Queue**: Google Cloud Pub/Sub (optional)
 * **Containerization**: Docker
 * **Testing**: Pytest
 

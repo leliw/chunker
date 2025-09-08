@@ -1,5 +1,6 @@
-from typing import List, Tuple
+from typing import List
 
+from features.chunks.chunk_model import ChunksRequest, ChunkWithEmebeddings
 from features.embeddings.embedding_service import EmbeddingService
 
 from .recursive_splitter import RecursiveSplitter
@@ -8,7 +9,7 @@ from .recursive_splitter import RecursiveSplitter
 class ChunkService:
     """Service for creating chunks from text using different embedding models."""
 
-    def __init__(self, embedding_service: EmbeddingService, chunk_overlap: int = 128):
+    def __init__(self, embedding_service: EmbeddingService, chunks_embedding_at_once: int = 4, chunk_overlap: int = 128):
         """
         Initializes the ChunkService.
 
@@ -17,23 +18,46 @@ class ChunkService:
             chunk_overlap (int): The number of tokens to overlap between chunks.
         """
         self.embedding_service = embedding_service
+        self.chunks_embedding_at_once = chunks_embedding_at_once
         self.chunk_overlap = chunk_overlap
 
-    def create_chunks(self, model_name: str, text: str) -> List[Tuple[str, int]]:
+    def create_chunks(self, req: ChunksRequest, generate_embeddings: bool | None = None) -> List[ChunkWithEmebeddings]:
         """
         Create chunks for the given text using a specified model.
 
         Args:
-            model_name (str): The name of the model to use for chunking and token counting.
-            text (str): The input text to be chunked.
+            req (ChunksRequest): The request object containing the text to chunk.
 
         Returns:
-            List[Tuple[str, int]]: A list of tuples, where each tuple contains the chunk text and its token count.
+            List[ChunkWithEmebeddings]: A list of chunks with embeddings.
 
         Raises:
             ValueError: If the specified model_name is not available.
         """
-        model = self.embedding_service.get_model(model_name)
+        if not req.language:
+            req.language = self.embedding_service.detect_language(req.text) or "pl"
+        if not req.embedding_model_name:
+            req.embedding_model_name = self.embedding_service.find_model_name(req.language)
+        model = self.embedding_service.get_model(req.embedding_model_name)
         splitter = RecursiveSplitter(model=model, chunk_size=model.max_seq_length, chunk_overlap=self.chunk_overlap)
-        chunks = splitter.split(text)
-        return [(chunk.page_content, splitter.count_tokens(chunk.page_content)) for chunk in chunks]
+        chunks = splitter.split(req.text)
+        total_chunks = len(chunks)
+        if generate_embeddings is None:
+            generate_embeddings = total_chunks <= self.chunks_embedding_at_once
+        ret = []
+        for i, doc in enumerate(chunks):
+            ret.append(
+                ChunkWithEmebeddings(
+                    job_id=req.job_id,
+                    task_id=req.task_id,
+                    chunk_index=i,
+                    total_chunks=total_chunks,
+                    language=req.language,
+                    embedding_model_name=req.embedding_model_name,
+                    text=doc.page_content,
+                    token_count=splitter.count_tokens(doc.page_content),
+                    embedding=self.embedding_service.generate_embeddings(req.embedding_model_name, doc.page_content) if generate_embeddings else [],
+                    metadata=req.metadata,
+                )
+            )
+        return ret

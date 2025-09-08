@@ -116,7 +116,41 @@ def test_generate_query_embeddings_by_language(client, language, text, length):
 )
 def test_generate_passage_embeddings_by_language(client, language, title, text, length):
     # When: A POST request is made to /api/embeddings/generate/passage
-    response = client.post("/api/embeddings/generate/passage", json={"title": title, "text": text, "language": language})
+    response = client.post(
+        "/api/embeddings/generate/passage", json={"title": title, "text": text, "language": language}
+    )
     r = response.json()
     # Then: Embedding size is 768 or 1024
     assert len(r["embedding"]) == length
+
+
+@pytest.mark.parametrize(
+    ["language", "title", "text", "length"],
+    [
+        ("pl", "Bolesław Chrobry", "Bolesław Chrobry był pierwszym królem Polski.", 768),
+        ("en", "Bolesław the Brave", "Bolesław the Brave was the first king of Poland.", 1024),
+    ],
+)
+def test_generate_passage_embeddings_autodetected_language(client, language, title, text, length):
+    # When: A POST request is made to /api/embeddings/generate/passage
+    response = client.post("/api/embeddings/generate/passage", json={"title": title, "text": text})
+    r = response.json()
+    # Then: Embedding size is 768 or 1024
+    assert len(r["embedding"]) == length
+    assert r["language"] == language
+
+
+@pytest.mark.parametrize(
+    ["language", "text", "length"],
+    [
+        ("pl", "Kto był pierwszym królem Polski?", 768),
+        ("en", "Who was the first king of Poland?", 1024),
+    ],
+)
+def test_generate_query_embeddings_autodetected_language(client, language, text, length):
+    # When: A POST request is made to /api/embeddings/generate/query
+    response = client.post("/api/embeddings/generate/query", json={"text": text})
+    r = response.json()
+    # Then: Embedding size is 768 or 1024
+    assert len(r["embedding"]) == length
+    assert r["language"] == language

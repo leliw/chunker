@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 from config import ServerConfig
 from sentence_transformers import SentenceTransformer
+from lingua import Language, LanguageDetectorBuilder
 
 from .embedding_model import EmbeddingPassageRequest, EmbeddingQueryRequest, EmbeddingResponse
 
@@ -67,6 +68,8 @@ class EmbeddingService:
         Returns:
             EmbeddingResponse: The response object containing the generated embeddings.
         """
+        if not req.language:
+            req.language = self.detect_language(req.text) or "pl"
         if not req.embedding_model_name:
             req.embedding_model_name = self.find_model_name(req.language)
         model = self.get_model(req.embedding_model_name)
@@ -91,6 +94,8 @@ class EmbeddingService:
         Returns:
             EmbeddingResponse: The response object containing the generated embeddings.
         """
+        if not req.language:
+            req.language = self.detect_language(req.text) or "pl"
         if not req.embedding_model_name:
             req.embedding_model_name = self.find_model_name(req.language)
         model = self.get_model(req.embedding_model_name)
@@ -125,3 +130,25 @@ class EmbeddingService:
             str: The name of the best model.
         """
         return self.default_model_for_language.get(language, "ipipan/silver-retriever-base-v1.1")
+
+
+    @classmethod
+    def detect_language(cls, text: str) -> str | None:
+        # Create a language detector for a set of languages
+        detector = LanguageDetectorBuilder.from_languages(
+            Language.ENGLISH,
+            Language.FRENCH,
+            Language.GERMAN,
+            Language.SPANISH,
+            Language.POLISH,
+            Language.RUSSIAN,
+            Language.UKRAINIAN,
+            Language.BELARUSIAN,
+            Language.ITALIAN,
+        ).build()
+        # Detect the language of the text
+        detected_language = detector.detect_language_of(text)
+        if detected_language:
+            return detected_language.iso_code_639_1.name.lower()
+        else:
+            return None

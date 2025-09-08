@@ -58,9 +58,9 @@ def get_embedding_service(config: ConfigDep) -> EmbeddingService:
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]
 
 
-def get_chunk_service(embedding_service: EmbeddingServiceDep) -> ChunkService:
+def get_chunk_service(config: ConfigDep, embedding_service: EmbeddingServiceDep) -> ChunkService:
     # Pass the dictionary of models to the ChunkService
-    return ChunkService(embedding_service)
+    return ChunkService(embedding_service, config.chunks_embedding_at_once)
 
 
 ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]
