@@ -1,5 +1,8 @@
 # Chunker
 
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-latest-blue)
+
 A FastAPI-based microservice responsible for chunking markdowns and calculating embeddings.
 
 ---
@@ -9,8 +12,9 @@ A FastAPI-based microservice responsible for chunking markdowns and calculating 
 The **Chunker Service** handles core functionality such as:
 
 * Chunks markdown text into smaller parts using the `langchain` `RecursiveCharacterTextSplitter`
-* Calculates embeddings for each chunk using the `ipipan/silver-retriever-base-v1.1` model
-* The chunk size is dependent on the model used, with a maximum of 512 tokens for the `ipipan/silver-retriever-base-v1.1` model
+* Calculates embeddings for each chunk using the `ipipan/silver-retriever-base-v1.1` for polis lanquage or `Qwen/Qwen3-Embedding-0.6B` for english language
+* Detects the language of the input text using the `lingua-language-detector` library
+* The chunk size is dependent on the model used
 
 It is designed to be stateless and scalable as part of a microservices architecture.
 
@@ -23,8 +27,10 @@ It is designed to be stateless and scalable as part of a microservices architect
 * **Web server**: Uvicorn / Gunicorn
 * **Authentication**: `x_api_key` header (optional)
 * **Chunking**: `langchain` library with `RecursiveCharacterTextSplitter`
-* **Embeddings**: `ipipan/silver-retriever-base-v1.1` model from Hugging Face
+* **Embeddings**: `ipipan/silver-retriever-base-v1.1` and `Qwen/Qwen3-Embedding-0.6B` models from Hugging Face
+* **Language detection**: `lingua-language-detector` library
 * **Database**: None (stateless service)
+* **Message Queue**: Google Cloud Pub/Sub (optional)
 * **Containerization**: Docker
 * **Testing**: Pytest
 
@@ -61,7 +67,8 @@ source ./run_docker.sh
 * `POST /api/chunks` - Accepts a JSON body with a `text` field containing the markdown text to be chunked.
 * `POST /api/chunks/with-embeddings` - Accepts a JSON body with a `text` field containing the markdown text to be chunked and embedded, and returns the embeddings for each chunk.
 * `POST /api/embeddings/generate` - Accepts a JSON body with a `text` field containing the markdown text to be chunked and embedded.
-* `POST /api/embeddings/generate/query` - Accepts a JSON body with a `text` field containing the **query** text to be chunked and embedded.
+* `POST /api/embeddings/generate/query` - Accepts a JSON body with a `text` field containing the **query** text to be embedded.
+* `POST /api/embeddings/generate/passage` - Accepts a JSON body with a `title` and `text` field containing the **passage** of text to be embedded.
 
 ### Google Cloud Platform Pub/Sub
 

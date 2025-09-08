@@ -13,6 +13,8 @@ class GcpFile(BaseModel):
 class ChunksRequest(BaseModel):
     job_id: Optional[UUID] = None
     task_id: Optional[UUID] = None
+    language: Optional[str] = None
+    embedding_model_name: Optional[str] = None
     text: str
     metadata: Optional[Dict[str, str]] = None
 
@@ -23,6 +25,7 @@ class ChunkWithEmebeddings(BaseModel):
     chunk_index: int
     total_chunks: int
     language: str
+    embedding_model_name: str
     text: str
     token_count: Optional[int] = None
     embedding: List[float]

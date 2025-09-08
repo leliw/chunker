@@ -1,7 +1,5 @@
-# ------ Stage 1: Angular project ------
+# ------ Stage 1: Load models ------
     FROM python:3.12-slim AS models
-
-    ARG MODEL_NAME="ipipan/silver-retriever-base-v1.1"
 
     # The installer requires curl (and certificates) to download the release archive
     RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
@@ -49,9 +47,8 @@
 
     # Load the embedding model.
     RUN echo '__version__ = ""' > /app/version.py
-    COPY ./load_model.py ./app/config.py /app/
-    ENV MODEL_NAME=$MODEL_NAME
-    RUN uv run --no-dev load_model.py && rm /app/load_model.py
+    COPY ./load_models.py ./app/config.py /app/
+    RUN uv run --no-dev load_models.py && rm /app/load_models.py
 # ------ Stage 2: Python/FastAPI project ------
     FROM python:3.12-slim
 
