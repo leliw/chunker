@@ -3,15 +3,18 @@ from typing import Dict, List, Optional
 
 from sentence_transformers import SentenceTransformer
 
+from config import ServerConfig
+
 
 class EmbeddingService:
-    def __init__(self, data_dir: str = "./data"):
+    def __init__(self, config: ServerConfig):
         """Initialize the EmbeddingService.
         
         Args:
             data_dir (str): The directory where the models are stored.
         """
-        self.data_dir = data_dir
+        self.data_dir = config.data_dir
+        self.default_model_for_language = config.default_model_for_language
         self.models: Dict[str, Optional[SentenceTransformer]] = {}
 
     def get_model_names(self) -> List[str]:
@@ -81,3 +84,13 @@ class EmbeddingService:
         """
         model = self.get_model(model_name)
         return model.similarity(embedding1, embedding2).item()
+
+    def find_model(self, language: str) -> str:
+        """Find the best model for the given language.
+
+        Args:
+            language (str): The language.
+        Returns:
+            str: The name of the best model.
+        """
+        return self.default_model_for_language.get(language, "ipipan/silver-retriever-base-v1.1")

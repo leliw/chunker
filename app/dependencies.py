@@ -52,7 +52,7 @@ async def verify_api_key(
 
 def get_embedding_service(config: ConfigDep) -> EmbeddingService:
     # EmbeddingService will also need to select a model
-    return EmbeddingService(config.data_dir)
+    return EmbeddingService(config)
 
 
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]

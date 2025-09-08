@@ -73,3 +73,20 @@ def test_generate_embeddings_by_model_name(client, model_name, length):
     r = response.json()
     # Then: Embedding size is 768 or 1024
     assert len(r) == length
+
+
+@pytest.mark.parametrize(
+    ["language", "length"],
+    [
+        ("pl", 768),
+        ("en", 1024),
+    ],
+)
+def test_generate_embeddings_by_language(client, language, length):
+    # Given: A language and some text
+    text = "This is a test sentence."
+    # When: A POST request is made to /api/embeddings/generate
+    response = client.post("/api/embeddings/generate", json={"text": text, "language": language})
+    r = response.json()
+    # Then: Embedding size is 768 or 1024
+    assert len(r) == length

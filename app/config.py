@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,8 +10,8 @@ class ServerConfig(BaseSettings):
 
     version: str = __version__
     data_dir: str = "./data"
-    model_names: list[str] = ["ipipan/silver-retriever-base-v1.1", "Qwen/Qwen3-Embedding-0.6B"]
-
+    model_names: List[str] = ["ipipan/silver-retriever-base-v1.1", "Qwen/Qwen3-Embedding-0.6B"]
+    default_model_for_language: Dict[str, str] = {"pl": "ipipan/silver-retriever-base-v1.1", "en": "Qwen/Qwen3-Embedding-0.6B"}
     api_key: Optional[str] = None
 
     chunks_response_topic: Optional[str] = None
