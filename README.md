@@ -12,7 +12,7 @@ A FastAPI-based microservice responsible for chunking markdowns and calculating 
 The **Chunker Service** handles core functionality such as:
 
 * Chunks markdown text into smaller parts using the `langchain` `RecursiveCharacterTextSplitter`
-* Calculates embeddings for each chunk using the `ipipan/silver-retriever-base-v1.1` for polis lanquage or `Qwen/Qwen3-Embedding-0.6B` for english language
+* Calculates embeddings for each chunk using the `ipipan/silver-retriever-base-v1.1` for polish lanquage or `Qwen/Qwen3-Embedding-0.6B` for english language
 * Detects the language of the input text using the `lingua-language-detector` library
 * The chunk size is dependent on the model used
 
