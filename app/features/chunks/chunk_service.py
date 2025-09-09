@@ -9,7 +9,9 @@ from .recursive_splitter import RecursiveSplitter
 class ChunkService:
     """Service for creating chunks from text using different embedding models."""
 
-    def __init__(self, embedding_service: EmbeddingService, chunks_embedding_at_once: int = 4, chunk_overlap: int = 128):
+    def __init__(
+        self, embedding_service: EmbeddingService, chunks_embedding_at_once: int = 4, chunk_overlap: int = 128
+    ):
         """
         Initializes the ChunkService.
 
@@ -34,13 +36,25 @@ class ChunkService:
         Raises:
             ValueError: If the specified model_name is not available.
         """
+        if req.input_file:
+            from ampf.gcp import GcpFactory
+
+            factory = GcpFactory(bucket_name=req.input_file.bucket)
+            bs = factory.create_blob_storage("", content_type="text/markdown")
+            file_content = bs.download_blob(req.input_file.name)
+            text = file_content.decode("utf-8")
+        elif req.text:
+            text = req.text
+        else:
+            raise ValueError("Either 'text' or 'input_file' must be provided.")
+
         if not req.language:
-            req.language = self.embedding_service.detect_language(req.text) or "pl"
+            req.language = self.embedding_service.detect_language(text) or "pl"
         if not req.embedding_model_name:
             req.embedding_model_name = self.embedding_service.find_model_name(req.language)
         model = self.embedding_service.get_model(req.embedding_model_name)
         splitter = RecursiveSplitter(model=model, chunk_size=model.max_seq_length, chunk_overlap=self.chunk_overlap)
-        chunks = splitter.split(req.text)
+        chunks = splitter.split(text)
         total_chunks = len(chunks)
         if generate_embeddings is None:
             generate_embeddings = total_chunks <= self.chunks_embedding_at_once
@@ -56,7 +70,9 @@ class ChunkService:
                     embedding_model_name=req.embedding_model_name,
                     text=doc.page_content,
                     token_count=splitter.count_tokens(doc.page_content),
-                    embedding=self.embedding_service.generate_embeddings(req.embedding_model_name, doc.page_content) if generate_embeddings else [],
+                    embedding=self.embedding_service.generate_embeddings(req.embedding_model_name, doc.page_content)
+                    if generate_embeddings
+                    else [],
                     metadata=req.metadata,
                 )
             )
