@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class GcpFile(BaseModel):
@@ -15,8 +15,20 @@ class ChunksRequest(BaseModel):
     task_id: Optional[UUID] = None
     language: Optional[str] = None
     embedding_model_name: Optional[str] = None
-    text: str
+    text: Optional[str] = None
+    input_file: Optional[GcpFile] = None
     metadata: Optional[Dict[str, str]] = None
+
+    @model_validator(mode="after")
+    def check_text_or_input_file(self) -> "ChunksRequest":
+        """
+        Validates that either 'text' or 'input_file' is provided, but not both.
+        """
+        if self.text is not None and self.input_file is not None:
+            raise ValueError("Either 'text' or 'input_file' must be provided, not both.")
+        if self.text is None and self.input_file is None:
+            raise ValueError("Either 'text' or 'input_file' must be provided.")
+        return self
 
 
 class ChunkWithEmebeddings(BaseModel):

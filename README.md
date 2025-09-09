@@ -82,7 +82,10 @@ Splits the provided text into chunks and generates embeddings for each chunk.
 class ChunksRequest(BaseModel):
     job_id: Optional[UUID] = None
     task_id: Optional[UUID] = None
-    text: str
+    language: Optional[str] = None
+    embedding_model_name: Optional[str] = None
+    text: Optional[str] = None
+    input_file: Optional[GcpFile] = None
     metadata: Optional[Dict[str, str]] = None
 ```
 
