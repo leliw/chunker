@@ -1,15 +1,17 @@
 import time
 import uuid
 
+import main
 import pytest
-from ampf.gcp import GcpPubsubRequest, GcpSubscription, GcpTopic
-from fastapi import FastAPI, status
-from fastapi.testclient import TestClient
+from ampf.gcp import GcpBlobStorage, GcpPubsubRequest, GcpSubscription, GcpTopic
 from config import ServerConfig
 from dependencies import get_server_config
+from fastapi import FastAPI, status
+from fastapi.testclient import TestClient
+from features.chunks.chunk_model import GcpFile
 from log_config import setup_logging
 from routers.chunks import ChunksRequest, ChunkWithEmebeddings
-import main
+
 from app.routers import pub_sub
 
 
@@ -19,6 +21,7 @@ def request_embedding_topic() -> GcpTopic:  # type: ignore
     topic = GcpTopic(topic_id).create(exist_ok=True)
     yield topic  # type: ignore
     topic.delete()
+
 
 @pytest.fixture(scope="module")
 def request_embedding_subscription(request_embedding_topic: GcpTopic):
@@ -38,6 +41,7 @@ def config(request_embedding_topic) -> ServerConfig:
 def app(config: ServerConfig) -> FastAPI:
     main.app.dependency_overrides[get_server_config] = lambda: config
     return main.app
+
 
 @pytest.fixture(scope="module")
 def topic():
@@ -81,7 +85,9 @@ def test_short_text_chunking(topic: GcpTopic, subscription: GcpSubscription, cli
     assert chunk.embedding
 
 
-def test_long_text_chunking(topic: GcpTopic, subscription: GcpSubscription, request_embedding_subscription: GcpSubscription, client: TestClient):
+def test_long_text_chunking(
+    topic: GcpTopic, subscription: GcpSubscription, request_embedding_subscription: GcpSubscription, client: TestClient
+):
     # Given: Message payload with long text
     with open("./tests/data/long_pl.txt", "r") as f:
         payload = ChunksRequest(job_id=uuid.uuid4(), text=f.read())
@@ -102,4 +108,41 @@ def test_long_text_chunking(topic: GcpTopic, subscription: GcpSubscription, requ
     chunk = subscription.receive_first_payload(lambda p: p.job_id == payload.job_id)
     assert chunk
     assert chunk.total_chunks == 9
+    assert chunk.embedding
+
+
+@pytest.fixture(scope="module")
+def blob_storage_md(gcp_bucket_name: str):
+    bs = GcpBlobStorage(uuid.uuid4().hex, None, "text/markdown", gcp_bucket_name)
+    yield bs
+    bs.drop()
+
+
+def test_input_file_chunking(
+    topic: GcpTopic, subscription: GcpSubscription, client: TestClient, blob_storage_md: GcpBlobStorage
+):
+    # Given: A markdown file stored in Cloud Storage
+    blob_storage_md.upload_blob("test.md", "xxx".encode())
+    # And: Message payload with this file
+    payload = ChunksRequest(
+        job_id=uuid.uuid4(),
+        input_file=GcpFile(
+            bucket=blob_storage_md._bucket.name,
+            name=f"{blob_storage_md.collection_name}/test.md",
+        ),
+    )
+    # And: A fake request pushed from a subscription
+    req = GcpPubsubRequest.create(payload, {"response_topic": topic.topic_id})
+    
+    # When: The request is posted
+    response = client.post("/pub-sub/requests", json=req.model_dump())
+    
+    # Then: Response is OK
+    assert response.status_code == status.HTTP_200_OK
+    # And: Chunk is received (with embedding)
+    chunk = subscription.receive_first_payload(lambda p: p.job_id == payload.job_id)
+    assert chunk
+    assert chunk.chunk_index == 0
+    assert chunk.total_chunks == 1
+    assert chunk.text == chunk.text
     assert chunk.embedding
