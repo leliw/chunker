@@ -2,7 +2,7 @@ from typing import List
 
 from dependencies import ChunkServiceDep, EmbeddingServiceDep
 from fastapi import APIRouter
-from features.chunks.chunk_model import ChunksRequest, ChunkWithEmebeddings
+from features.chunks.chunk_model import ChunksRequest, ChunkWithEmbeddings
 
 router = APIRouter(tags=["Chunks"])
 
@@ -18,7 +18,7 @@ async def create_chunks(chunk_service: ChunkServiceDep, chunks_request: ChunksRe
 @router.post("/with-embeddings")
 async def create_chunks_with_embeddings(
     chunk_service: ChunkServiceDep, embedding_service: EmbeddingServiceDep, chunks_request: ChunksRequest
-) -> List[ChunkWithEmebeddings]:
+) -> List[ChunkWithEmbeddings]:
     """
     Create chunks with embeddings for the given text.
     """

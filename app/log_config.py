@@ -1,14 +1,16 @@
 import logging
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from log_context import ContextFilter
 
 
 class LogConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LOG_")
     level: str = "INFO"
-    log_config: str = "INFO"
     # Loggers
+    log_config: str = "INFO"
     routers__pub_sub: str = "INFO"
+    features__embeddings__embedding_service: str = "INFO"
 
 
 _log = logging.getLogger(__name__)
@@ -21,10 +23,13 @@ def setup_logging():
         # Set FastAPI like formater
         import uvicorn.logging
 
-        formatter = uvicorn.logging.DefaultFormatter("%(levelprefix)s %(name)s: %(message)s")
+        # Add context_info to the log format. It will be populated by ContextFilter.
+        formatter = uvicorn.logging.DefaultFormatter("%(levelprefix)s %(name)s: %(context_info)s%(message)s")
     except ImportError:
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(context_info)s%(message)s")
     ch.setFormatter(formatter)
+    # Add the context filter to the handler.
+    ch.addFilter(ContextFilter())
     logging.getLogger().addHandler(ch)
 
     logconfig = LogConfig()

@@ -16,7 +16,9 @@ _log = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     config = ServerConfig()
+    _log.info("Version: %s", config.version)
     app.state.config = config
+    app.state.embedding_service = EmbeddingService(config)
     yield
 
 
@@ -50,9 +52,8 @@ async def verify_api_key(
         _log.warning("API key not required")
 
 
-def get_embedding_service(config: ConfigDep) -> EmbeddingService:
-    # EmbeddingService will also need to select a model
-    return EmbeddingService(config)
+def get_embedding_service(app: AppDep, ) -> EmbeddingService:
+    return app.state.embedding_service
 
 
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]

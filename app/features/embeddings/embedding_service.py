@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Dict, List, Optional
 
@@ -9,6 +10,8 @@ from .embedding_model import EmbeddingPassageRequest, EmbeddingQueryRequest, Emb
 
 
 class EmbeddingService:
+    _log = logging.getLogger(__name__)
+
     def __init__(self, config: ServerConfig):
         """Initialize the EmbeddingService.
 
@@ -41,7 +44,8 @@ class EmbeddingService:
             SentenceTransformer: The SentenceTransformer model.
         """
         if self.models.get(model_name) is None:
-            self.models[model_name] = SentenceTransformer(model_name)
+            self.models[model_name] = SentenceTransformer(f"{self.data_dir}/{model_name}")
+            self._log.info(f"Loaded model {model_name}")
         model = self.models[model_name]
         if not model:
             raise ValueError(f"Model '{model_name}' not found.")
@@ -70,8 +74,10 @@ class EmbeddingService:
         """
         if not req.language:
             req.language = self.detect_language(req.text) or "pl"
+            self._log.debug(f"Detected language: {req.language}")
         if not req.embedding_model_name:
             req.embedding_model_name = self.find_model_name(req.language)
+            self._log.debug(f"Detected model: {req.embedding_model_name}")
         model = self.get_model(req.embedding_model_name)
         match req.embedding_model_name:
             case "ipipan/silver-retriever-base-v1.1":
@@ -96,16 +102,21 @@ class EmbeddingService:
         """
         if not req.language:
             req.language = self.detect_language(req.text) or "pl"
+            self._log.debug(f"Detected language: {req.language}")
         if not req.embedding_model_name:
             req.embedding_model_name = self.find_model_name(req.language)
+            self._log.debug(f"Detected model: {req.embedding_model_name}")
         model = self.get_model(req.embedding_model_name)
+        self._log.debug(f"Model loaded: {req.embedding_model_name}")
         match req.embedding_model_name:
             case "ipipan/silver-retriever-base-v1.1":
                 # Polish Silver Retriever model expects the title and text with the special token "</s>"
                 embedding = model.encode(f"{req.title}</s>{req.text}", show_progress_bar=False).tolist()
+                self._log.debug(f"Embedding calculated: {req.embedding_model_name}")
                 return EmbeddingResponse(embedding=embedding, language=req.language, embedding_model_name=req.embedding_model_name)
             case _:
                 embedding = model.encode(req.text, show_progress_bar=False).tolist()
+                self._log.debug(f"Embedding calculated: {req.embedding_model_name}")
                 return EmbeddingResponse(embedding=embedding, language=req.language, embedding_model_name=req.embedding_model_name)
 
     def compare_embeddings(self, model_name: str, embedding1, embedding2) -> float:

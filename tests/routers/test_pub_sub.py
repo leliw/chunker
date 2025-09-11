@@ -9,7 +9,7 @@ from unittest.mock import patch
 from app.routers import pub_sub
 from config import ServerConfig
 from log_config import setup_logging
-from routers.chunks import ChunkWithEmebeddings, ChunksRequest
+from routers.chunks import ChunkWithEmbeddings, ChunksRequest
 
 
 @pytest.fixture
@@ -52,7 +52,7 @@ def test_delivery_push_with_response_topic(client):
         assert resp_topic.endswith(response_topic)
         bdata: bytes = args[1]
         assert bdata
-        data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
+        data = ChunkWithEmbeddings.model_validate_json(bdata.decode("utf-8"))
         assert data.chunk_index == 0
         assert data.text == reqest.text
         assert data.embedding
@@ -90,7 +90,7 @@ def test_delivery_push_without_response_topic(config: ServerConfig, client):
         assert resp_topic.endswith(config.chunks_response_topic)
         bdata: bytes = args[1]
         assert bdata
-        data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
+        data = ChunkWithEmbeddings.model_validate_json(bdata.decode("utf-8"))
         assert data.chunk_index == 0
         assert data.text == reqest.text
         assert data.embedding
@@ -132,7 +132,7 @@ def test_delivery_push_with_sender_id(config: ServerConfig, client):
         assert sender_id == attrs.get("sender_id")
         bdata: bytes = args[1]
         assert bdata
-        data = ChunkWithEmebeddings.model_validate_json(bdata.decode("utf-8"))
+        data = ChunkWithEmbeddings.model_validate_json(bdata.decode("utf-8"))
         assert data.chunk_index == 0
         assert data.text == reqest.text
         assert data.embedding

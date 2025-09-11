@@ -31,7 +31,7 @@ class ChunksRequest(BaseModel):
         return self
 
 
-class ChunkWithEmebeddings(BaseModel):
+class ChunkWithEmbeddings(BaseModel):
     job_id: Optional[UUID] = None
     task_id: Optional[UUID] = None
     chunk_index: int

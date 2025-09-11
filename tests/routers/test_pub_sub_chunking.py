@@ -10,7 +10,7 @@ from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 from features.chunks.chunk_model import GcpFile
 from log_config import setup_logging
-from routers.chunks import ChunksRequest, ChunkWithEmebeddings
+from routers.chunks import ChunksRequest, ChunkWithEmbeddings
 
 from app.routers import pub_sub
 
@@ -25,7 +25,7 @@ def request_embedding_topic() -> GcpTopic:  # type: ignore
 
 @pytest.fixture(scope="module")
 def request_embedding_subscription(request_embedding_topic: GcpTopic):
-    subscription = request_embedding_topic.create_subscription(clazz=ChunkWithEmebeddings, exist_ok=True)
+    subscription = request_embedding_topic.create_subscription(clazz=ChunkWithEmbeddings, exist_ok=True)
     yield subscription
     subscription.delete()
 
@@ -54,7 +54,7 @@ def topic():
 @pytest.fixture(scope="module")
 def subscription(topic: GcpTopic):
     subscription_id = f"{topic.topic_id}_sub"
-    subscription = topic.create_subscription(subscription_id, clazz=ChunkWithEmebeddings, exist_ok=True)
+    subscription = topic.create_subscription(subscription_id, clazz=ChunkWithEmbeddings, exist_ok=True)
     yield subscription
     subscription.delete()
 
