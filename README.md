@@ -1,11 +1,11 @@
 # Chunker
 
 ![Python](https://img.shields.io/badge/python-3.12-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-latest-blue)
+![FastAPI Version](https://img.shields.io/badge/FastAPI-0.116%2B-009688.svg)
+![uv Package Manager](https://img.shields.io/badge/Package%20Manager-uv-purple.svg)
+![License](https://img.shields.io/badge/License-MIT-lightgray.svg)
 
 A FastAPI-based microservice responsible for chunking markdowns and calculating embeddings.
-
----
 
 ## Overview
 
@@ -17,8 +17,6 @@ The **Chunker Service** handles core functionality such as:
 * The chunk size is dependent on the model used
 
 It is designed to be stateless and scalable as part of a microservices architecture.
-
----
 
 ## Architecture & Dependencies
 
@@ -33,8 +31,6 @@ It is designed to be stateless and scalable as part of a microservices architect
 * **Message Queue**: Google Cloud Pub/Sub (optional)
 * **Containerization**: Docker
 * **Testing**: Pytest
-
----
 
 ## Build and Run
 
@@ -61,6 +57,36 @@ source ./run_docker.sh
 * Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
 * ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 * OpenAPI spec: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
+
+## Configuration
+
+The application can be configured using environment variables. A .env file is supported for local development.
+Example .env file:
+
+```dotenv
+PYTHONPATH=app
+
+GOOGLE_CLOUD_PROJECT=
+```
+
+All configuration options can be found in `app/config.py` in `ServerConfig` class.
+
+* `data_dir`: Directory to store application data (embedings models)
+* `model_names`: Comma-separated list of model names to load
+* `default_model_for_language`: Default model to use for a given language  
+* `api_key`: API key for authenticating requests
+* `chunks_embedding_at_once`: Number of text chunks to embed in a single request, if more chunks are generated, they will be processed asynchronously by pub/sub topic
+* `request_embeddings_topic`: Pub/Sub topic for processing embedding requests
+* `chunks_response_topic`: Default Pub/Sub topic for returning chunks
+
+Logging configuration options can be found in `app/logging_config.py` in `LogConfig` class (below `# Loggers` comment).
+Environment variables should be prefixed with `LOG_`, e.g. `LOG_LOG_CONFIG=DEBUG` for `log_config` logger.
+
+* log_config
+* routers__pub_sub
+* features__embeddings__embedding_service
+
+Make sure to set these environment variables in your deployment environment. Never commit sensitive information like SECRET_KEY directly into your repository.
 
 ### REST API
 
