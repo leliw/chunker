@@ -1,23 +1,24 @@
 # ------ Stage 1: Load models ------
     FROM python:3.12-slim AS models
-
+    COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+    
     # The installer requires curl (and certificates) to download the release archive
-    RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+    # RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
    
     # Creates a non-root user with an explicit UID and adds permission to access the /app folder
     RUN mkdir /app
     RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 
     # Download the latest installer
-    ADD https://astral.sh/uv/install.sh /uv-installer.sh
+    # ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
     # Run the installer then remove it
-    RUN sh /uv-installer.sh && rm /uv-installer.sh
+    # RUN sh /uv-installer.sh && rm /uv-installer.sh
 
     # Ensure the installed binary is on the `PATH`
-    ENV PATH="/root/.local/bin/:$PATH"
+    # ENV PATH="/root/.local/bin/:$PATH"
     # Copy uv for non-root user
-    RUN cp /root/.local/bin/uv /usr/local/bin/uv
+    # RUN cp /root/.local/bin/uv /usr/local/bin/uv
 
     # Enable bytecode compilation
     ENV UV_COMPILE_BYTECODE=1
@@ -51,27 +52,27 @@
     RUN uv run --no-dev load_models.py && rm /app/load_models.py
 # ------ Stage 2: Python/FastAPI project ------
     FROM python:3.12-slim
-
+    COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+    
     ARG EXTRA="cpu"
-    ARG MODEL_NAME="ipipan/silver-retriever-base-v1.1"
 
     # The installer requires curl (and certificates) to download the release archive
-    RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+    # RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
     # Creates a non-root user with an explicit UID and adds permission to access the /app folder
     RUN mkdir /app
     RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 
     # Download the latest installer
-    ADD https://astral.sh/uv/install.sh /uv-installer.sh
+    # ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
     # Run the installer then remove it
-    RUN sh /uv-installer.sh && rm /uv-installer.sh
+    # RUN sh /uv-installer.sh && rm /uv-installer.sh
 
     # Ensure the installed binary is on the `PATH`
-    ENV PATH="/root/.local/bin/:$PATH"
+    # ENV PATH="/root/.local/bin/:$PATH"
     # Copy uv for non-root user
-    RUN cp /root/.local/bin/uv /usr/local/bin/uv
+    # RUN cp /root/.local/bin/uv /usr/local/bin/uv
 
     # Enable bytecode compilation
     ENV UV_COMPILE_BYTECODE=1
@@ -112,4 +113,10 @@
 
     # Run the application.
     EXPOSE 8080
-    CMD ["uv", "run", "--no-dev", "gunicorn", "--bind", "0.0.0.0:8080", "-k", "uvicorn.workers.UvicornWorker", "main:app"]
+    CMD [\
+        "uv", "run", "--no-dev", \
+        "gunicorn", "main:app", \
+        "--bind", "0.0.0.0:8080", \
+        "--worker-class", "uvicorn.workers.UvicornWorker", \
+        "--timeout", "300" \
+        ]
