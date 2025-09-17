@@ -1,7 +1,17 @@
 import logging
+import os
+from datetime import datetime
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pythonjsonlogger.json import JsonFormatter as OrgJsonFormatter
 
+
+class JsonFormatter(OrgJsonFormatter):
+    def formatTime(self, record: logging.LogRecord, datefmt: Optional[str] = None):
+        # Format the timestamp as RFC 3339 with microsecond precision
+        isoformat = datetime.fromtimestamp(record.created).isoformat()
+        return f"{isoformat}Z"
 
 class LogConfig(BaseSettings):
     """
@@ -25,14 +35,16 @@ _log = logging.getLogger(__name__)
 
 
 def setup_logging():
-    """
-    Sets up the application's logging configuration.
+    """Sets up the application's logging configuration.
 
-    It configures the root logger, attempts to use uvicorn's default formatter
-    if available, and then sets logging levels for various modules based on
-    the `LogConfig` settings.
+    Chooses between structured (JSON) logging and plain text logging based on the presence
+    of the 'OTEL_EXPORTER_OTLP_ENDPOINT' environment variable.
+    Also configures logging levels for various loggers based on environment variables.    
     """
-    setup_text_logging()
+    if os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT"):
+        setup_structured_logging()
+    else:
+        setup_text_logging()
 
     # Load logging configuration from settings
     logconfig = LogConfig()
@@ -62,3 +74,24 @@ def setup_text_logging() -> None:
     ch.setFormatter(formatter)
     # Add the handler to the root logger
     logging.getLogger().addHandler(ch)
+
+def setup_structured_logging() -> None:
+    from opentelemetry.instrumentation.logging import LoggingInstrumentor
+
+    LoggingInstrumentor().instrument()
+    log_handler = logging.StreamHandler()
+    formatter = JsonFormatter(
+        "%(asctime)s %(levelname)s %(message)s %(otelTraceID)s %(otelSpanID)s %(otelTraceSampled)s",
+        rename_fields={
+            "levelname": "severity",
+            "asctime": "timestamp",
+            "otelTraceID": "logging.googleapis.com/trace",
+            "otelSpanID": "logging.googleapis.com/spanId",
+            "otelTraceSampled": "logging.googleapis.com/trace_sampled",
+        },
+    )
+    log_handler.setFormatter(formatter)
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=[log_handler],
+    )
