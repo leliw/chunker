@@ -24,3 +24,8 @@ app.include_router(config.router, prefix="/api/config")
 app.include_router(embeddings.router, prefix="/api/embeddings")
 app.include_router(chunks.router, prefix="/api/chunks")
 app.include_router(pub_sub.router, prefix="/pub-sub")
+
+
+@app.get("/api/ping")
+async def ping() -> None:
+    """Just keep container alive."""
