@@ -1,0 +1,56 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/ingress: all
+  name: {{SERVICE_NAME}}
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/container-dependencies: '{"{{SERVICE_NAME}}":["otelcol"]}'
+        run.googleapis.com/startup-cpu-boost: 'true'
+    spec:
+      containers:
+      - name: {{SERVICE_NAME}}
+        image: {{DOCKER_REGISTRY}}/{{IMAGE_NAME}}:{{IMAGE_VERSION}}
+        env:
+        - name: GOOGLE_CLOUD_PROJECT
+          value: {{PROJECT_ID}}
+        - name: LOG_LOG_CONFIG
+          value: DEBUG
+        - name: LOG_ROUTERS__PUB_SUB
+          value: DEBUG
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: http://otelcol:4318
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: 6000m
+            memory: 8Gi
+        startupProbe:
+          failureThreshold: 1
+          periodSeconds: 240
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 240
+      - name: otelcol
+        image: {{DOCKER_REGISTRY}}/otelcol-gcp:latest
+        env:
+        - name: GOOGLE_CLOUD_PROJECT
+          value: {{PROJECT_ID}}
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        startupProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 1
+      timeoutSeconds: 300
