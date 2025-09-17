@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./docker_config.sh
+source ./config.sh
 # EXTRA="cpu"
 EXTRA="gpu"
 IMAGE_VERSION="$EXTRA-$IMAGE_BASE_VERSION"

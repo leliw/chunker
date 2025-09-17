@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./docker_config.sh
+source ./config.sh
 
 for EXTRA in "cpu" "gpu"
 do
