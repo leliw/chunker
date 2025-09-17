@@ -52,7 +52,7 @@ class ChunkService:
             raise ValueError("Either 'text' or 'input_file' must be provided.")
 
         if not req.language:
-            req.language = self.embedding_service.detect_language(text) or "pl"
+            req.language = self.embedding_service.detect_language(text)
         if not req.embedding_model_name:
             req.embedding_model_name = self.embedding_service.find_model_name(req.language)
         model = self.embedding_service.get_model(req.embedding_model_name)
