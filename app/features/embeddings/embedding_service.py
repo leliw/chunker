@@ -163,6 +163,8 @@ class EmbeddingService:
         if detected_language:
             return detected_language.iso_code_639_1.name.lower()
         else:
-            self._log.warning(f"No language detected for text: {text}")
-            return next(iter(self.default_model_for_language))
+            ret = next(iter(self.default_model_for_language))
+            self._log.warning("No language detected for text: %s", text)
+            self._log.warning("Using default model: %s", ret)
+            return ret
 

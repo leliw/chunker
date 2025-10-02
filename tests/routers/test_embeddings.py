@@ -144,6 +144,7 @@ def test_generate_passage_embeddings_autodetected_language(client, language, tit
     ["language", "text", "length"],
     [
         ("pl", "Kto był pierwszym królem Polski?", 768),
+        ("pl", "Co to jest za badanie \"spirometira\"?", 768),
         ("en", "Who was the first king of Poland?", 1024),
     ],
 )
