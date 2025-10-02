@@ -10,6 +10,7 @@ from app.routers import pub_sub
 from config import ServerConfig
 from log_config import setup_logging
 from routers.chunks import ChunkWithEmbeddings, ChunksRequest
+from ampf.gcp import GcpPubsubRequest, GcpPubsubMessage
 
 
 @pytest.fixture
@@ -24,16 +25,8 @@ def test_delivery_push_with_response_topic(client):
     # Given: a Pub/Sub message with response_topic
     job_id = uuid.uuid4()
     reqest = ChunksRequest(job_id=job_id, text="xxx")
-    message_id = uuid.uuid4().hex
     response_topic = "chunks"
-    message = pub_sub.PushRequest(
-        message=pub_sub.PubsubMessage(
-            messageId=message_id,
-            attributes={"response_topic": response_topic},
-            data=base64.b64encode(reqest.model_dump_json().encode("utf-8")).decode("utf-8"),
-        ),
-        subscription="test/subscription",
-    )
+    message = GcpPubsubRequest.create(reqest, {"response_topic": response_topic, "sender_id": "unittests"})
     # Patch the PublisherClient.publish method to mock GCP publish
     with patch("google.cloud.pubsub_v1.PublisherClient.publish") as mock_publish:
         mock_future = type("MockFuture", (), {"result": lambda self: "mocked-message-id"})()
@@ -63,8 +56,8 @@ def test_delivery_push_without_response_topic(config: ServerConfig, client):
     job_id = uuid.uuid4()
     reqest = ChunksRequest(job_id=job_id, text="xxx")
     message_id = uuid.uuid4().hex
-    message = pub_sub.PushRequest(
-        message=pub_sub.PubsubMessage(
+    message = GcpPubsubRequest(
+        message=GcpPubsubMessage(
             messageId=message_id,
             data=base64.b64encode(reqest.model_dump_json().encode("utf-8")).decode("utf-8"),
         ),
@@ -102,8 +95,8 @@ def test_delivery_push_with_sender_id(config: ServerConfig, client):
     reqest = ChunksRequest(job_id=job_id, text="xxx")
     message_id = uuid.uuid4().hex
     sender_id = "unittests"
-    message = pub_sub.PushRequest(
-        message=pub_sub.PubsubMessage(
+    message = GcpPubsubRequest(
+        message=GcpPubsubMessage(
             messageId=message_id,
             attributes={"sender_id": sender_id},
             data=base64.b64encode(reqest.model_dump_json().encode("utf-8")).decode("utf-8"),

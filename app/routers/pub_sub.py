@@ -1,28 +1,15 @@
 import logging
-from typing import Dict, Iterator, Optional
+from typing import Iterator
 
 from ampf.gcp import GcpPubsubRequest, gcp_pubsub_push_handler
 from dependencies import ChunkServiceDep, ConfigDep, EmbeddingServiceDep
 from fastapi import APIRouter
 from log_context import job_id_context, task_id_context
-from pydantic import BaseModel
 from routers.chunks import ChunksRequest, ChunkWithEmbeddings
 
 _log = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Pub/Sub Push"])
-
-
-class PubsubMessage(BaseModel):
-    messageId: Optional[str] = None
-    attributes: Optional[Dict[str, str]] = None
-    data: str
-    publishTime: Optional[str] = None
-
-
-class PushRequest(BaseModel):
-    message: PubsubMessage
-    subscription: str
 
 
 @router.post("/requests")
@@ -48,12 +35,9 @@ def handle_push(
     _log.debug("End processing chunks, job=%s, task=%s", payload.job_id, payload.task_id)
 
 
-
 @router.post("/requests/embeddings")
 @gcp_pubsub_push_handler()
-def handle_push_embeddings(
-    embedding_service: EmbeddingServiceDep, payload: ChunkWithEmbeddings
-) -> ChunkWithEmbeddings:
+def handle_push_embeddings(embedding_service: EmbeddingServiceDep, payload: ChunkWithEmbeddings) -> ChunkWithEmbeddings:
     # Set context variables for logging.
     job_id_context.set(payload.job_id)
     task_id_context.set(payload.task_id)
