@@ -47,6 +47,6 @@ def setup_otel(app: FastAPI) -> None:
     meter_provider = MeterProvider(metric_readers=[reader], resource=resource)
     metrics.set_meter_provider(meter_provider)
 
-    FastAPIInstrumentor.instrument_app(app)
+    FastAPIInstrumentor.instrument_app(app, excluded_urls="/api/ping")
     RequestsInstrumentor().instrument()
     HTTPXClientInstrumentor().instrument()
