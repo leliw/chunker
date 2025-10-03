@@ -48,8 +48,12 @@
 
     # Load the embedding model.
     RUN echo '__version__ = ""' > /app/version.py
+    
     COPY ./load_models.py ./app/config.py /app/
-    RUN uv run --no-dev load_models.py && rm /app/load_models.py
+
+    # RUN uv run --no-dev load_models.py && rm /app/load_models.py
+    COPY ./data/ /app/data/
+
 # ------ Stage 2: Python/FastAPI project ------
     FROM python:3.12-slim
     COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
@@ -110,6 +114,8 @@
 
     # Place executables in the environment at the front of the path
     ENV PATH="/app/.venv/bin:$PATH"
+
+    RUN python -m compileall .
 
     # Run the application.
     EXPOSE 8080

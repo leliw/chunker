@@ -16,5 +16,4 @@ sed -e "s/{{SERVICE_NAME}}/$SERVICE_NAME/g" \
 gcloud run services replace gcp-service.yaml --region $REGION
 rm gcp-service.yaml
 
-gcloud run services proxy $SERVICE_NAME --region $REGION
-``
+# gcloud run services proxy $SERVICE_NAME --region $REGION

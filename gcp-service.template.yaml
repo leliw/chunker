@@ -37,7 +37,7 @@ spec:
             port: 8080
           timeoutSeconds: 240
       - name: otelcol
-        image: {{DOCKER_REGISTRY}}/otelcol-gcp:latest
+        image: {{DOCKER_REGISTRY}}/otelcol-gcp:0.135.3
         env:
         - name: GOOGLE_CLOUD_PROJECT
           value: {{PROJECT_ID}}
