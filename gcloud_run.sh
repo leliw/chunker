@@ -13,7 +13,7 @@ sed -e "s/{{SERVICE_NAME}}/$SERVICE_NAME/g" \
     -e "s/{{IMAGE_NAME}}/$IMAGE_NAME/g" \
     -e "s/{{IMAGE_VERSION}}/$IMAGE_VERSION/g" \
     gcp-service.template.yaml > gcp-service.yaml
-gcloud run services replace gcp-service.yaml --region $REGION
+gcloud run services replace gcp-service.yaml --region $REGION --project $PROJECT_ID
 rm gcp-service.yaml
 
-# gcloud run services proxy $SERVICE_NAME --region $REGION
+# gcloud run services proxy $SERVICE_NAME --region $REGION --project $PROJECT_ID
