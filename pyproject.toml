@@ -3,7 +3,7 @@ name = "chunker"
 dynamic = [ "version" ] # See app/version.py
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13, < 3.14"
 dependencies = [
     "ampf[gcp]>=0.2.5",
     "fastapi[standard]>=0.115.12",
@@ -43,11 +43,11 @@ dev = [
 
 [project.optional-dependencies]
 cpu = [
-    "torch>=2.7.0",
+    "torch==2.8.0",
     "torchvision>=0.22.0",
 ]
 gpu = [
-    "torch>=2.7.0",
+    "torch==2.8.0",
     "torchvision>=0.22.0",
 ]
 
