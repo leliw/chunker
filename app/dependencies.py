@@ -49,10 +49,10 @@ async def verify_api_key(
             raise HTTPException(status_code=403, detail="Invalid API key")
         _log.debug("API key verified")
     else:
-        _log.warning("API key not required")
+        _log.debug("API key not required")
 
 
-def get_embedding_service(app: AppDep, ) -> EmbeddingService:
+def get_embedding_service(app: AppDep) -> EmbeddingService:
     return app.state.embedding_service
 
 
