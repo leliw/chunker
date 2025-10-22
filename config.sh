@@ -14,4 +14,4 @@ export SERVICE_ACCOUNT="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 export SERVICE_ENDPOINT="https://${SERVICE_NAME}-${PROJECT_NUMBER}.${REGION}.run.app"
 
 export IMAGE_NAME="${SERVICE_NAME}"
-export IMAGE_BASE_VERSION=$(uv run app/version.py)
+export IMAGE_BASE_VERSION=$(uv run --no-sync app/version.py)

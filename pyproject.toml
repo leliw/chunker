@@ -43,11 +43,11 @@ dev = [
 
 [project.optional-dependencies]
 cpu = [
-    "torch==2.8.0",
+    "torch==2.7.0",
     "torchvision>=0.22.0",
 ]
 gpu = [
-    "torch==2.8.0",
+    "torch==2.7.0",
     "torchvision>=0.22.0",
 ]
 
