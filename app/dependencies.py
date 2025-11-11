@@ -1,6 +1,7 @@
 import logging
 from typing import Annotated, Optional
 
+from app_state import AppState
 from config import ServerConfig
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
@@ -17,22 +18,23 @@ def lifespan(config: ServerConfig = ServerConfig()):
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         _log.info("Version: %s", config.version)
-        app.state.config = config
-        app.state.embedding_service = EmbeddingService(config)
+        app_state = AppState.create(config)
+        app.state.app_state = app_state
+
         yield
 
     return lifespan
 
 
-def get_app(request: Request) -> FastAPI:
-    return request.app
+def get_app_state(request: Request) -> AppState:
+    return request.app.state.app_state
 
 
-AppDep = Annotated[FastAPI, Depends(get_app)]
+AppStateDep = Annotated[AppState, Depends(get_app_state)]
 
 
-def get_server_config(app: AppDep) -> ServerConfig:
-    return app.state.config
+def get_server_config(app_state: AppStateDep) -> ServerConfig:
+    return app_state.config
 
 
 ConfigDep = Annotated[ServerConfig, Depends(get_server_config)]
@@ -54,16 +56,15 @@ async def verify_api_key(
         _log.debug("API key not required")
 
 
-def get_embedding_service(app: AppDep) -> EmbeddingService:
-    return app.state.embedding_service
+def get_embedding_service(app_state: AppStateDep) -> EmbeddingService:
+    return app_state.embedding_service
 
 
 EmbeddingServiceDep = Annotated[EmbeddingService, Depends(get_embedding_service)]
 
 
-def get_chunk_service(config: ConfigDep, embedding_service: EmbeddingServiceDep) -> ChunkService:
-    # Pass the dictionary of models to the ChunkService
-    return ChunkService(embedding_service, config.chunks_embedding_at_once)
+def get_chunk_service(app_state: AppStateDep) -> ChunkService:
+    return ChunkService(app_state.embedding_service, app_state.config.chunks_embedding_at_once)
 
 
 ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]
