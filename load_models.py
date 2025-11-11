@@ -9,12 +9,12 @@ from sentence_transformers import SentenceTransformer
 # This makes the script runnable from the project root directory.
 sys.path.insert(0, str(Path(__file__).parent / "app"))
 
-from config import ServerConfig
+from app_config import AppConfig
 
 def main():
     load_dotenv()
     
-    config = ServerConfig()
+    config = AppConfig()
     if not config.model_names:
         print("No models configured in 'model_names'. Exiting.")
         return

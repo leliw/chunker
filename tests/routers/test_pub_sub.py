@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch
 
 from app.routers import pub_sub
-from config import ServerConfig
+from app_config import AppConfig
 from log_config import setup_logging
 from routers.chunks import ChunkWithEmbeddings, ChunksRequest
 from ampf.gcp import GcpPubsubRequest, GcpPubsubMessage
@@ -51,7 +51,7 @@ def test_delivery_push_with_response_topic(client):
         assert data.embedding
 
 
-def test_delivery_push_without_response_topic(config: ServerConfig, client):
+def test_delivery_push_without_response_topic(config: AppConfig, client):
     # Given: a Pub/Sub message without response_topic and sender_id
     job_id = uuid.uuid4()
     reqest = ChunksRequest(job_id=job_id, text="xxx")
@@ -89,7 +89,7 @@ def test_delivery_push_without_response_topic(config: ServerConfig, client):
         assert data.embedding
 
 
-def test_delivery_push_with_sender_id(config: ServerConfig, client):
+def test_delivery_push_with_sender_id(config: AppConfig, client):
     # Given: a Pub/Sub message with sender_id
     job_id = uuid.uuid4()
     reqest = ChunksRequest(job_id=job_id, text="xxx")

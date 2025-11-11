@@ -1,18 +1,18 @@
 import main
 import pytest
-from config import ServerConfig
+from app_config import AppConfig
 from dependencies import get_server_config
 from fastapi import FastAPI
 
 
 @pytest.fixture
-def config() -> ServerConfig:
-    config = ServerConfig()
+def config() -> AppConfig:
+    config = AppConfig()
     return config
 
 
 @pytest.fixture
-def app(config: ServerConfig) -> FastAPI:
+def app(config: AppConfig) -> FastAPI:
     main.app.dependency_overrides[get_server_config] = lambda: config
     return main.app
 

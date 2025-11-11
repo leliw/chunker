@@ -5,7 +5,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from config import ServerConfig
+from app_config import AppConfig
 from dependencies import get_server_config
 
 
@@ -54,7 +54,7 @@ def test_global_api_key_valid_when_required(app: FastAPI, client: TestClient, ca
     # Arrange
     test_api_key = "test_secret_key"
     # Override the ServerConfig dependency to simulate an API key being set
-    app.dependency_overrides[get_server_config] = lambda: ServerConfig(
+    app.dependency_overrides[get_server_config] = lambda: AppConfig(
         api_key=test_api_key, version="test_v"
     )
 
@@ -78,7 +78,7 @@ def test_global_api_key_invalid_when_required(app: FastAPI,client: TestClient, c
     """
     # Arrange
     test_api_key = "test_secret_key"
-    app.dependency_overrides[get_server_config] = lambda: ServerConfig(
+    app.dependency_overrides[get_server_config] = lambda: AppConfig(
         api_key=test_api_key
     )
 
@@ -98,7 +98,7 @@ def test_global_api_key_missing_when_required(app: FastAPI,client: TestClient, c
     """
     # Arrange
     test_api_key = "test_secret_key"
-    app.dependency_overrides[get_server_config] = lambda: ServerConfig(
+    app.dependency_overrides[get_server_config] = lambda: AppConfig(
         api_key=test_api_key
     )
 
@@ -119,7 +119,7 @@ def test_global_api_key_not_required(app: FastAPI,client: TestClient, caplog):
     """
     # Arrange
     # Override ServerConfig to simulate no API key being set (api_key=None)
-    app.dependency_overrides[get_server_config] = lambda: ServerConfig(
+    app.dependency_overrides[get_server_config] = lambda: AppConfig(
         api_key=None, version="test_v_no_key"
     )
 

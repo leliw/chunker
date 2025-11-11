@@ -10,11 +10,11 @@ from load_models import main # If load_models.py is in the same dir as tests/ or
 
 @pytest.fixture
 def mock_server_config(mocker):
-    """Fixture to mock ServerConfig."""
+    """Fixture to mock AppConfig."""
     mock_config_instance = MagicMock()
     mock_config_instance.model_names = ["test-model"]
     mock_config_instance.data_dir = "./test_data"
-    mocker.patch("load_models.ServerConfig", return_value=mock_config_instance)
+    mocker.patch("load_models.AppConfig", return_value=mock_config_instance)
     return mock_config_instance
 
 

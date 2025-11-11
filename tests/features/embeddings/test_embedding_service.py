@@ -1,8 +1,8 @@
 from app.features.embeddings.embedding_service import EmbeddingService
-from config import ServerConfig
+from app_config import AppConfig
 
 
-def test_loading_model(config: ServerConfig):
+def test_loading_model(config: AppConfig):
     # Given: A model name
     model_name = "ipipan/silver-retriever-base-v1.1"
     # When: The model is loaded
@@ -12,7 +12,7 @@ def test_loading_model(config: ServerConfig):
     assert model_name in embedding_service.models
     assert model is not None
 
-def test_get_models(config: ServerConfig):
+def test_get_models(config: AppConfig):
     # Given: A data directory with models
     # When: The models are retrieved
     embedding_service = EmbeddingService(config)
@@ -24,7 +24,7 @@ def test_get_models(config: ServerConfig):
         assert isinstance(model, str)
     assert len(model.split("/")) == 2  # Check if the model name is in the format "namespace/model_name"
 
-def test_generate_embeddings(config: ServerConfig):
+def test_generate_embeddings(config: AppConfig):
     # Given: A model name and some text
     model_name = "ipipan/silver-retriever-base-v1.1"
     text = "This is a test sentence."
@@ -35,7 +35,7 @@ def test_generate_embeddings(config: ServerConfig):
     assert isinstance(embeddings, list)
     assert len(embeddings) > 0
 
-def test_compare_embeddings(config: ServerConfig):
+def test_compare_embeddings(config: AppConfig):
     # Given: A model name and two sets of text
     model_name = "ipipan/silver-retriever-base-v1.1"
     text1 = "This is a test sentence."

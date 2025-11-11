@@ -2,7 +2,7 @@ import logging
 from typing import Annotated, Optional
 
 from app_state import AppState
-from config import ServerConfig
+from app_config import AppConfig
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.concurrency import asynccontextmanager
@@ -14,7 +14,7 @@ load_dotenv()
 _log = logging.getLogger(__name__)
 
 
-def lifespan(config: ServerConfig = ServerConfig()):
+def lifespan(config: AppConfig = AppConfig()):
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         _log.info("Version: %s", config.version)
@@ -33,11 +33,11 @@ def get_app_state(request: Request) -> AppState:
 AppStateDep = Annotated[AppState, Depends(get_app_state)]
 
 
-def get_server_config(app_state: AppStateDep) -> ServerConfig:
+def get_server_config(app_state: AppStateDep) -> AppConfig:
     return app_state.config
 
 
-ConfigDep = Annotated[ServerConfig, Depends(get_server_config)]
+ConfigDep = Annotated[AppConfig, Depends(get_server_config)]
 
 
 async def verify_api_key(

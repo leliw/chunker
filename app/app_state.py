@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 
-from config import ServerConfig
+from app_config import AppConfig
 from features.embeddings.embedding_service import EmbeddingService
 
 _log = logging.getLogger(__name__)
@@ -9,11 +9,11 @@ _log = logging.getLogger(__name__)
 
 @dataclass
 class AppState:
-    config: ServerConfig
+    config: AppConfig
     embedding_service: EmbeddingService
 
     @classmethod
-    def create(cls, config: ServerConfig):
+    def create(cls, config: AppConfig):
         return cls(
             config=config,
             embedding_service=EmbeddingService(config),

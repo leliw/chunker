@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from config import ClientConfig
+from app_config import ClientConfig
 from dependencies import ConfigDep
 
 router = APIRouter(tags=["Client config"])

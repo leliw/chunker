@@ -4,7 +4,7 @@ import uuid
 import main
 import pytest
 from ampf.gcp import GcpBlobStorage, GcpPubsubRequest, GcpSubscription, GcpTopic
-from config import ServerConfig
+from app_config import AppConfig
 from dependencies import get_server_config
 from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
@@ -31,14 +31,14 @@ def request_embedding_subscription(request_embedding_topic: GcpTopic):
 
 
 @pytest.fixture(scope="module")
-def config(request_embedding_topic) -> ServerConfig:
-    config = ServerConfig()
+def config(request_embedding_topic) -> AppConfig:
+    config = AppConfig()
     config.request_embeddings_topic = request_embedding_topic.topic_id
     return config
 
 
 @pytest.fixture(scope="module")
-def app(config: ServerConfig) -> FastAPI:
+def app(config: AppConfig) -> FastAPI:
     main.app.dependency_overrides[get_server_config] = lambda: config
     return main.app
 

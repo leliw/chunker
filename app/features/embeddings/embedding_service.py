@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Dict, List, Optional
 
-from config import ServerConfig
+from app_config import AppConfig
 from lingua import IsoCode639_1, Language, LanguageDetectorBuilder
 from sentence_transformers import SentenceTransformer
 
@@ -12,7 +12,7 @@ from .embedding_model import EmbeddingPassageRequest, EmbeddingQueryRequest, Emb
 class EmbeddingService:
     _log = logging.getLogger(__name__)
 
-    def __init__(self, config: ServerConfig):
+    def __init__(self, config: AppConfig):
         """Initialize the EmbeddingService.
 
         Args:
