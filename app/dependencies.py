@@ -13,13 +13,15 @@ load_dotenv()
 _log = logging.getLogger(__name__)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    config = ServerConfig()
-    _log.info("Version: %s", config.version)
-    app.state.config = config
-    app.state.embedding_service = EmbeddingService(config)
-    yield
+def lifespan(config: ServerConfig = ServerConfig()):
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        _log.info("Version: %s", config.version)
+        app.state.config = config
+        app.state.embedding_service = EmbeddingService(config)
+        yield
+
+    return lifespan
 
 
 def get_app(request: Request) -> FastAPI:

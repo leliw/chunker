@@ -14,7 +14,7 @@ from version import __version__
 load_dotenv()
 setup_logging()
 app = FastAPI(
-    lifespan=lifespan,
+    lifespan=lifespan(),
     title="Chunker",
     version=__version__,
     dependencies=[Depends(verify_api_key)],
