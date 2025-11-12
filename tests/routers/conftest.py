@@ -18,10 +18,3 @@ def app(config: AppConfig):
 def client(app: FastAPI):
     with ApiTestClient(app) as client:
         yield client
-
-@contextmanager
-def client_factory(config):
-    # Reconfigure the lifespan to use the test server config
-    main_app.router.lifespan_context = lifespan(config)
-    with ApiTestClient(main_app) as client:
-        yield client

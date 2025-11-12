@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from features.chunks.chunk_model import GcpFile
 from log_config import setup_logging
 from routers.chunks import ChunksRequest, ChunkWithEmbeddings
-from conftest import client_factory
+from tests.conftest import client_factory
 from app.routers import pub_sub
 
 

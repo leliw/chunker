@@ -6,7 +6,7 @@ from ampf.gcp import GcpPubsubMessage, GcpPubsubRequest, GcpPubsubResponse
 from ampf.testing import ApiTestClient, MockMethod
 from app_config import AppConfig
 from routers.chunks import ChunksRequest, ChunkWithEmbeddings
-from conftest import client_factory
+from tests.conftest import client_factory
 
 
 
