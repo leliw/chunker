@@ -1,8 +1,9 @@
+from contextlib import contextmanager
 import pytest
+from ampf.testing import ApiTestClient
 from app_config import AppConfig
-from dependencies import get_server_config
+from dependencies import get_server_config, lifespan
 from fastapi import FastAPI
-from fastapi.testclient import TestClient
 from main import app as main_app
 
 
@@ -15,5 +16,12 @@ def app(config: AppConfig):
 
 @pytest.fixture
 def client(app: FastAPI):
-    with TestClient(app) as client:
+    with ApiTestClient(app) as client:
+        yield client
+
+@contextmanager
+def client_factory(config):
+    # Reconfigure the lifespan to use the test server config
+    main_app.router.lifespan_context = lifespan(config)
+    with ApiTestClient(main_app) as client:
         yield client

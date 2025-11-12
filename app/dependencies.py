@@ -1,13 +1,14 @@
 import logging
 from typing import Annotated, Optional
 
-from app_state import AppState
 from app_config import AppConfig
+from app_state import AppState
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.concurrency import asynccontextmanager
 from features.chunks.chunk_service import ChunkService
 from features.embeddings.embedding_service import EmbeddingService
+from message_routers.chunk_request_message_router import ChunkRequestMessageRouter
 
 load_dotenv()
 
@@ -68,3 +69,14 @@ def get_chunk_service(app_state: AppStateDep) -> ChunkService:
 
 
 ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]
+
+
+def get_chunnk_request_message_router(app_state: AppStateDep) -> ChunkRequestMessageRouter:
+    return ChunkRequestMessageRouter(
+        app_state.config,
+        app_state.async_factory,
+        get_chunk_service(app_state),
+    )
+
+
+ChunkRequestMessageRouterDep = Annotated[ChunkRequestMessageRouter, Depends(get_chunnk_request_message_router)]

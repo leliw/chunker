@@ -1,57 +1,42 @@
 import base64
 import uuid
 
-import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-from unittest.mock import patch
-
-from app.routers import pub_sub
+from ampf.base import BaseAsyncFactory
+from ampf.gcp import GcpPubsubMessage, GcpPubsubRequest, GcpPubsubResponse
+from ampf.testing import ApiTestClient, MockMethod
 from app_config import AppConfig
-from log_config import setup_logging
-from routers.chunks import ChunkWithEmbeddings, ChunksRequest
-from ampf.gcp import GcpPubsubRequest, GcpPubsubMessage
+from routers.chunks import ChunksRequest, ChunkWithEmbeddings
+from conftest import client_factory
 
 
-@pytest.fixture
-def client(app: FastAPI):
-    app.include_router(pub_sub.router, prefix="/pub-sub")
-    setup_logging()
-    with TestClient(app) as client:
-        yield client
 
+def test_delivery_push_with_response_topic(client: ApiTestClient, mock_method: MockMethod):
+    # Patch the PublisherClient.publish method to mock GCP publish
+    mock_publish = mock_method(BaseAsyncFactory.publish_message)
 
-def test_delivery_push_with_response_topic(client):
     # Given: a Pub/Sub message with response_topic
     job_id = uuid.uuid4()
     reqest = ChunksRequest(job_id=job_id, text="xxx")
     response_topic = "chunks"
-    message = GcpPubsubRequest.create(reqest, {"response_topic": response_topic, "sender_id": "unittests"})
+    message = GcpPubsubRequest.create(reqest, response_topic=response_topic, sender_id="unittests")
+    # When: A POST message to /pub-sub
+    r = client.post_typed("/pub-sub/requests", 200, GcpPubsubResponse, json=message)
+    # Then: The message is acknowledged
+    assert r.status == "acknowledged"
+    # And: publish was called with correct arguments
+    mock_publish.assert_called()
+    args, _ = mock_publish.call_args
+    resp_topic = args[0]
+    assert resp_topic.endswith(response_topic)
+    data: ChunkWithEmbeddings = args[1]
+    assert data.chunk_index == 0
+    assert data.text == reqest.text
+    assert data.embedding
+
+
+def test_delivery_push_without_response_topic(mock_method: MockMethod):
     # Patch the PublisherClient.publish method to mock GCP publish
-    with patch("google.cloud.pubsub_v1.PublisherClient.publish") as mock_publish:
-        mock_future = type("MockFuture", (), {"result": lambda self: "mocked-message-id"})()
-        mock_publish.return_value = mock_future
-        # When: A POST message to /pub-sub
-        response = client.post("/pub-sub/requests", json=message.model_dump())
-        r = response.json()
-        # Then: The response status code is 200
-        assert 200 == response.status_code
-        # And: The message is acknowledged
-        assert r["status"] == "acknowledged"
-        # And: publish was called with correct arguments
-        mock_publish.assert_called()
-        args, _ = mock_publish.call_args
-        resp_topic = args[0]
-        assert resp_topic.endswith(response_topic)
-        bdata: bytes = args[1]
-        assert bdata
-        data = ChunkWithEmbeddings.model_validate_json(bdata.decode("utf-8"))
-        assert data.chunk_index == 0
-        assert data.text == reqest.text
-        assert data.embedding
-
-
-def test_delivery_push_without_response_topic(config: AppConfig, client):
+    mock_publish = mock_method(BaseAsyncFactory.publish_message)
     # Given: a Pub/Sub message without response_topic and sender_id
     job_id = uuid.uuid4()
     reqest = ChunksRequest(job_id=job_id, text="xxx")
@@ -64,58 +49,37 @@ def test_delivery_push_without_response_topic(config: AppConfig, client):
         subscription="test/subscription",
     )
     # And: chunks_resoponse_topic is set in config
-    config.chunks_response_topic = "chunks2"
-    # Patch the PublisherClient.publish method to mock GCP publish
-    with patch("google.cloud.pubsub_v1.PublisherClient.publish") as mock_publish:
-        mock_future = type("MockFuture", (), {"result": lambda self: "mocked-message-id"})()
-        mock_publish.return_value = mock_future
+    config = AppConfig(chunks_response_topic="chunks2")
+    with client_factory(config) as client:
         # When: A POST message to /pub-sub
-        response = client.post("/pub-sub/requests", json=message.model_dump())
-        r = response.json()
-        # Then: The response status code is 200
-        assert 200 == response.status_code
-        # And: The message is acknowledged
-        assert r["status"] == "acknowledged"
+        r = client.post_typed("/pub-sub/requests", 200, GcpPubsubResponse, json=message)
+        # Then: The message is acknowledged
+        assert r.status == "acknowledged"
         # And: publish was called with correct arguments
         mock_publish.assert_called_once()
         args, _ = mock_publish.call_args
         resp_topic = args[0]
         assert resp_topic.endswith(config.chunks_response_topic)
-        bdata: bytes = args[1]
-        assert bdata
-        data = ChunkWithEmbeddings.model_validate_json(bdata.decode("utf-8"))
+        data: ChunkWithEmbeddings = args[1]
         assert data.chunk_index == 0
         assert data.text == reqest.text
         assert data.embedding
 
 
-def test_delivery_push_with_sender_id(config: AppConfig, client):
-    # Given: a Pub/Sub message with sender_id
-    job_id = uuid.uuid4()
-    reqest = ChunksRequest(job_id=job_id, text="xxx")
-    message_id = uuid.uuid4().hex
-    sender_id = "unittests"
-    message = GcpPubsubRequest(
-        message=GcpPubsubMessage(
-            messageId=message_id,
-            attributes={"sender_id": sender_id},
-            data=base64.b64encode(reqest.model_dump_json().encode("utf-8")).decode("utf-8"),
-        ),
-        subscription="test/subscription",
-    )
-    # And: chunks_resoponse_topic is set in config
-    config.chunks_response_topic = "chunks2"
+def test_delivery_push_with_sender_id(mock_method: MockMethod):
     # Patch the PublisherClient.publish method to mock GCP publish
-    with patch("google.cloud.pubsub_v1.PublisherClient.publish") as mock_publish:
-        mock_future = type("MockFuture", (), {"result": lambda self: "mocked-message-id"})()
-        mock_publish.return_value = mock_future
+    mock_publish = mock_method(BaseAsyncFactory.publish_message)
+    # Given: a Pub/Sub message with sender_id
+    reqest = ChunksRequest(text="xxx")
+    sender_id = "unittests"
+    message = GcpPubsubRequest.create(reqest, sender_id=sender_id)
+    # And: chunks_resoponse_topic is set in config
+    config = AppConfig(chunks_response_topic="chunks2")
+    with client_factory(config) as client:
         # When: A POST message to /pub-sub
-        response = client.post("/pub-sub/requests", json=message.model_dump())
-        r = response.json()
-        # Then: The response status code is 200
-        assert 200 == response.status_code
-        # And: The message is acknowledged
-        assert r["status"] == "acknowledged"
+        r = client.post_typed("/pub-sub/requests", 200, GcpPubsubResponse, json=message)
+        # Then: The message is acknowledged
+        assert r.status == "acknowledged"
         # And: publish was called with correct arguments
         mock_publish.assert_called_once()
         args, attrs = mock_publish.call_args
@@ -123,9 +87,7 @@ def test_delivery_push_with_sender_id(config: AppConfig, client):
         assert resp_topic.endswith(config.chunks_response_topic)
         # And: Sendder_id attribute is set
         assert sender_id == attrs.get("sender_id")
-        bdata: bytes = args[1]
-        assert bdata
-        data = ChunkWithEmbeddings.model_validate_json(bdata.decode("utf-8"))
+        data: ChunkWithEmbeddings = args[1]
         assert data.chunk_index == 0
         assert data.text == reqest.text
         assert data.embedding
