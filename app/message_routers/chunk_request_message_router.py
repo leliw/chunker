@@ -28,8 +28,8 @@ class ChunkRequestMessageRouter(SubscriptionProcessor[ChunksRequest]):
         chunk_service: ChunkService,
     ):
         super().__init__(async_factory, ChunksRequest)
-        self.chunks_response_topic = config.chunks_response_topic
-        self.request_embeddings_topic = config.request_embeddings_topic
+        self.chunks_response_topic = config.chunking_responses_topic
+        self.chunk_embedding_requests_topic = config.chunk_embedding_requests_topic
         self.chunks_embedding_at_once = config.chunks_embedding_at_once
         self.chunk_service = chunk_service
 
@@ -57,7 +57,7 @@ class ChunkRequestMessageRouter(SubscriptionProcessor[ChunksRequest]):
                 span.set_attribute("total_chunks", total_chunks)
                 _log.debug("Total chunks: %s, job=%s, task=%s", total_chunks, payload.job_id, payload.task_id)
                 if total_chunks > self.chunks_embedding_at_once:
-                    request.forward_response_to_topic(self.request_embeddings_topic)
+                    request.forward_response_to_topic(self.chunk_embedding_requests_topic)
                 for chunk in chunks:
                     await self.process_response(request, chunk)
                 _log.debug(

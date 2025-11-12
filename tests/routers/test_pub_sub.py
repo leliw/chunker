@@ -49,7 +49,7 @@ def test_delivery_push_without_response_topic(mock_method: MockMethod):
         subscription="test/subscription",
     )
     # And: chunks_resoponse_topic is set in config
-    config = AppConfig(chunks_response_topic="chunks2")
+    config = AppConfig(chunking_responses_topic="chunks2")
     with client_factory(config) as client:
         # When: A POST message to /pub-sub
         r = client.post_typed("/pub-sub/requests", 200, GcpPubsubResponse, json=message)
@@ -59,7 +59,7 @@ def test_delivery_push_without_response_topic(mock_method: MockMethod):
         mock_publish.assert_called_once()
         args, _ = mock_publish.call_args
         resp_topic = args[0]
-        assert resp_topic.endswith(config.chunks_response_topic)
+        assert resp_topic.endswith(config.chunking_responses_topic)
         data: ChunkWithEmbeddings = args[1]
         assert data.chunk_index == 0
         assert data.text == reqest.text
@@ -74,7 +74,7 @@ def test_delivery_push_with_sender_id(mock_method: MockMethod):
     sender_id = "unittests"
     message = GcpPubsubRequest.create(reqest, sender_id=sender_id)
     # And: chunks_resoponse_topic is set in config
-    config = AppConfig(chunks_response_topic="chunks2")
+    config = AppConfig(chunking_responses_topic="chunks2")
     with client_factory(config) as client:
         # When: A POST message to /pub-sub
         r = client.post_typed("/pub-sub/requests", 200, GcpPubsubResponse, json=message)
@@ -84,7 +84,7 @@ def test_delivery_push_with_sender_id(mock_method: MockMethod):
         mock_publish.assert_called_once()
         args, attrs = mock_publish.call_args
         resp_topic = args[0]
-        assert resp_topic.endswith(config.chunks_response_topic)
+        assert resp_topic.endswith(config.chunking_responses_topic)
         # And: Sendder_id attribute is set
         assert sender_id == attrs.get("sender_id")
         data: ChunkWithEmbeddings = args[1]

@@ -15,8 +15,10 @@ class AppConfig(BaseSettings):
     api_key: Optional[str] = None
 
     chunks_embedding_at_once: int = 4
-    request_embeddings_topic: str = "chunker-embeddings-requests"
-    chunks_response_topic: Optional[str] = None
+    
+    chunking_requests_topic: Optional[str] = None
+    chunking_responses_topic: Optional[str] = None
+    chunk_embedding_requests_topic: str = "chunker-embeddings-requests"
 
     @property
     def model_names(self) -> List[str]:

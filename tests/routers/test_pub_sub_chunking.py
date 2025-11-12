@@ -33,7 +33,7 @@ def request_embedding_subscription(request_embedding_topic: GcpTopic):
 @pytest.fixture(scope="module")
 def config(request_embedding_topic) -> AppConfig:
     config = AppConfig()
-    config.request_embeddings_topic = request_embedding_topic.topic_id
+    config.chunk_embedding_requests_topic = request_embedding_topic.topic_id
     return config
 
 
