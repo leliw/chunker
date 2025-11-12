@@ -22,7 +22,10 @@ def lifespan(config: AppConfig = AppConfig()):
         app_state = AppState.create(config)
         app.state.app_state = app_state
 
-        yield
+        app_state.add_topic_subscription(config.chunking_requests_topic, get_chunk_request_message_router(app_state))
+        
+        with app_state:
+            yield
 
     return lifespan
 
@@ -71,7 +74,7 @@ def get_chunk_service(app_state: AppStateDep) -> ChunkService:
 ChunkServiceDep = Annotated[ChunkService, Depends(get_chunk_service)]
 
 
-def get_chunnk_request_message_router(app_state: AppStateDep) -> ChunkRequestMessageRouter:
+def get_chunk_request_message_router(app_state: AppStateDep) -> ChunkRequestMessageRouter:
     return ChunkRequestMessageRouter(
         app_state.config,
         app_state.async_factory,
@@ -79,4 +82,4 @@ def get_chunnk_request_message_router(app_state: AppStateDep) -> ChunkRequestMes
     )
 
 
-ChunkRequestMessageRouterDep = Annotated[ChunkRequestMessageRouter, Depends(get_chunnk_request_message_router)]
+ChunkRequestMessageRouterDep = Annotated[ChunkRequestMessageRouter, Depends(get_chunk_request_message_router)]
