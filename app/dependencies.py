@@ -8,6 +8,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.concurrency import asynccontextmanager
 from features.chunks.chunk_service import ChunkService
 from features.embeddings.embedding_service import EmbeddingService
+from message_routers.chunk_embedding_request_message_router import ChunkEmbeddingRequestMessageRouter
 from message_routers.chunk_request_message_router import ChunkRequestMessageRouter
 
 load_dotenv()
@@ -23,7 +24,8 @@ def lifespan(config: AppConfig = AppConfig()):
         app.state.app_state = app_state
 
         app_state.add_topic_subscription(config.chunking_requests_topic, get_chunk_request_message_router(app_state))
-        
+        app_state.add_topic_subscription(config.chunk_embedding_requests_topic, get_chunk_embedding_request_message_router(app_state))
+
         with app_state:
             yield
 
@@ -83,3 +85,15 @@ def get_chunk_request_message_router(app_state: AppStateDep) -> ChunkRequestMess
 
 
 ChunkRequestMessageRouterDep = Annotated[ChunkRequestMessageRouter, Depends(get_chunk_request_message_router)]
+
+
+def get_chunk_embedding_request_message_router(app_state: AppStateDep) -> ChunkEmbeddingRequestMessageRouter:
+    return ChunkEmbeddingRequestMessageRouter(
+        app_state.async_factory,
+        get_embedding_service(app_state),
+    )
+
+
+ChunkEmbeddingRequestMessageRouterDep = Annotated[
+    ChunkEmbeddingRequestMessageRouter, Depends(get_chunk_embedding_request_message_router)
+]

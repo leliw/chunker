@@ -81,16 +81,16 @@ wheels = [
 
 [[package]]
 name = "ampf"
-version = "0.8.5"
+version = "0.8.8"
 source = { registry = "https://europe-west3-python.pkg.dev/development-428212/pip/simple/" }
 dependencies = [
     { name = "aiofiles" },
     { name = "aiohttp" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://europe-west3-python.pkg.dev/development-428212/pip/ampf/ampf-0.8.5.tar.gz", hash = "sha256:4848575503fe76e41c5f08a370a4d1f18304c0949756a35c3b064820207e0f0b" }
+sdist = { url = "https://europe-west3-python.pkg.dev/development-428212/pip/ampf/ampf-0.8.8.tar.gz", hash = "sha256:33b9ee0a596f21ec39e6b493b3ad3c9b60067e0c95034e97275555ddee5663f4" }
 wheels = [
-    { url = "https://europe-west3-python.pkg.dev/development-428212/pip/ampf/ampf-0.8.5-py3-none-any.whl", hash = "sha256:1ce6ea032dc17a8f2778353925b3b8dfb1938285d3d9187ba2726a0393eb7e07" },
+    { url = "https://europe-west3-python.pkg.dev/development-428212/pip/ampf/ampf-0.8.8-py3-none-any.whl", hash = "sha256:7b1a3aeb09b8c0155497122ada83606c6852d07d33428ed403f547b2ce016074" },
 ]
 
 [package.optional-dependencies]
