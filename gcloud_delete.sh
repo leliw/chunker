@@ -28,5 +28,5 @@ delete_pubsub_resources() {
     gcloud pubsub topics delete "$topic_name" --project="$PROJECT_ID" --quiet
 }
 
-delete_pubsub_resources "chunker-requests"
-delete_pubsub_resources "chunker-embeddings-requests"
+delete_pubsub_resources "chunking-requests"
+delete_pubsub_resources "chunk-embedding-requests"

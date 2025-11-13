@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# This script creates all the necessary Google Cloud Pub/Sub resources
-# for the application. It uses a helper function to reduce duplication.
-
 source ./config.sh
 
 ##
@@ -34,14 +31,25 @@ create_pubsub_resources() {
     gcloud pubsub topics create "$dlq_topic_name" --project="$PROJECT_ID" --message-retention-duration=7d
 
     # Create the main push subscription with DLQ configuration
-    gcloud pubsub subscriptions create "${topic_name}-sub" \
-        --project="$PROJECT_ID" \
-        --topic="$topic_name" \
-        --push-endpoint="$SERVICE_ENDPOINT$push_path" \
-        --push-auth-service-account="$SERVICE_ACCOUNT" \
-        --message-retention-duration=6h \
-        --max-delivery-attempts=5 \
-        --dead-letter-topic="$dlq_topic_name"
+    if [ -z "$push_path" ]; then
+        gcloud pubsub subscriptions create "${topic_name}-sub" \
+            --project="$PROJECT_ID" \
+            --topic="$topic_name" \
+            --ack-deadline=600 \
+            --message-retention-duration=6h \
+            --max-delivery-attempts=5 \
+            --dead-letter-topic="$dlq_topic_name"
+    else
+        gcloud pubsub subscriptions create "${topic_name}-sub" \
+            --project="$PROJECT_ID" \
+            --topic="$topic_name" \
+            --ack-deadline=600 \
+            --message-retention-duration=6h \
+            --max-delivery-attempts=5 \
+            --dead-letter-topic="$dlq_topic_name" \
+            --push-endpoint="$SERVICE_ENDPOINT$push_path" \
+            --push-auth-service-account="$SERVICE_ACCOUNT"
+    fi
 
     # Create a subscription to the DLQ topic for inspection
     gcloud pubsub subscriptions create "${dlq_topic_name}-sub" --project="$PROJECT_ID" --topic="$dlq_topic_name"
@@ -50,5 +58,5 @@ create_pubsub_resources() {
     gcloud pubsub subscriptions create "${topic_name}-debug" --project="$PROJECT_ID" --topic="$topic_name" --message-retention-duration=1h
 }
 
-create_pubsub_resources "chunker-requests" "/pub-sub/requests"
-create_pubsub_resources "chunker-embeddings-requests" "/pub-sub/requests/embeddings"
+create_pubsub_resources "chunking-requests"
+create_pubsub_resources "chunk-embedding-requests"
