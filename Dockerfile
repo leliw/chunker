@@ -19,32 +19,30 @@ ENV UV_LINK_MODE=copy
 
 WORKDIR /app
 
+# Install the project's dependencies using the lockfile and settings
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=./uv.lock,target=uv.lock \
+    --mount=type=bind,source=./pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project --no-dev --extra $EXTRA
+
 # Copy embedding models.
 COPY ./data /app/data
 
 COPY pyproject.toml uv.lock /app/
 
-# Install application dependencies.
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-install-project --no-dev --extra $EXTRA
-
 # Copy the application into the container.
 COPY ./app/ /app/
 
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-install-project --no-dev
+
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
-
-RUN python -m compileall .
 
 # Switch to non-root user.
 USER appuser
 
 # Run the application.
 EXPOSE 8080
-CMD [\
-    "uv", "run", "--no-dev", "--no-sync", \
-    "gunicorn", "main:app", \
-    "--bind", "0.0.0.0:8080", \
-    "--worker-class", "uvicorn.workers.UvicornWorker", \
-    "--timeout", "300" \
-    ]
+CMD ["sh", "-c", "uv run --no-dev gunicorn --bind 0.0.0.0:8080 -k uvicorn.workers.UvicornWorker --workers ${WORKERS:-1} --timeout 300 main:app"]
