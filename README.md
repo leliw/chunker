@@ -72,12 +72,17 @@ GOOGLE_CLOUD_PROJECT=
 All configuration options can be found in `app/config.py` in `ServerConfig` class.
 
 * `data_dir`: Directory to store application data (embedings models)
-* `model_names`: Comma-separated list of model names to load
 * `default_model_for_language`: Default model to use for a given language  
 * `api_key`: API key for authenticating requests
 * `chunks_embedding_at_once`: Number of text chunks to embed in a single request, if more chunks are generated, they will be processed asynchronously by pub/sub topic
-* `request_embeddings_topic`: Pub/Sub topic for processing embedding requests
-* `chunks_response_topic`: Default Pub/Sub topic for returning chunks
+* `chunking_responses_topic`: Default Pub/Sub topic for returning chunks
+* `chunk_embedding_requests_topic`: Pub/Sub topic for processing embedding requests
+
+Below parameters are used when service isn't running Cloud Run.
+They are used to start pulling Pub/Sub subscriptions.
+
+* `chunking_requests_subscription` - subscription for chunking requests
+* `chunk_embedding_requests_subscription` - subscription for processing embedding requests
 
 Logging configuration options can be found in `app/logging_config.py` in `LogConfig` class (below `# Loggers` comment).
 Environment variables should be prefixed with `LOG_`, e.g. `LOG_LOG_CONFIG=DEBUG` for `log_config` logger.

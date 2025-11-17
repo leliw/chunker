@@ -23,8 +23,8 @@ def lifespan(config: AppConfig = AppConfig()):
         app_state = AppState.create(config)
         app.state.app_state = app_state
 
-        app_state.add_topic_subscription(config.chunking_requests_topic, get_chunk_request_message_router(app_state))
-        app_state.add_topic_subscription(config.chunk_embedding_requests_topic, get_chunk_embedding_request_message_router(app_state))
+        app_state.add_subscription(config.chunking_requests_subscription, get_chunk_request_message_router(app_state))
+        app_state.add_subscription(config.chunk_embedding_requests_subscription, get_chunk_embedding_request_message_router(app_state))
 
         with app_state:
             yield

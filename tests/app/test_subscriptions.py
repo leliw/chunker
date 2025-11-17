@@ -5,24 +5,26 @@ from features.chunks.chunk_model import ChunkWithEmbeddings, ChunksRequest
 
 from tests.conftest import client_factory
 
+chunking_requests_topic = "test-req"
 
 @pytest.mark.asyncio
 async def test_chunking_requests(pubsub_manager: PubSubManager):
     config = AppConfig(
-        chunking_requests_topic="test-req",
+        chunking_requests_subscription=f"{chunking_requests_topic}-sub",
         chunking_responses_topic="test_resp",
         chunk_embedding_requests_topic="test-e-req",
+        chunk_embedding_requests_subscription="test-e-req-sub",
     )
-    assert config.chunking_requests_topic
+    assert config.chunking_requests_subscription
     assert config.chunking_responses_topic
     pubsub_manager.prepare_resources(config, prepare_topic_subscriptions=True)
-    sub_req = pubsub_manager.prepare_topic_subscription(config.chunking_requests_topic, clazz=ChunksRequest)
+    sub_req = pubsub_manager.prepare_topic_subscription(chunking_requests_topic, clazz=ChunksRequest)
     sub_resp = pubsub_manager.prepare_topic_subscription(config.chunking_responses_topic, clazz=ChunkWithEmbeddings)
     with client_factory(config):
         # Given: A chunks request
         req = ChunksRequest(text="Pierwszym królem Polski był Bolesław Chrobry")
         # When: The chunks request is published
-        pubsub_manager.publish(config.chunking_requests_topic, req)
+        pubsub_manager.publish(chunking_requests_topic, req)
         await sub_req.wait_until_empty()
         # Then: Chunks are returned
         chunk = sub_resp.receive_first_payload(lambda p: True)
@@ -34,9 +36,10 @@ async def test_chunking_requests(pubsub_manager: PubSubManager):
 @pytest.mark.asyncio
 async def test_chunk_embedding_requests(pubsub_manager: PubSubManager):
     config = AppConfig(
-        chunking_requests_topic="test2-req",
+        chunking_requests_subscription="test2-req-sub",
         chunking_responses_topic="test2_resp",
         chunk_embedding_requests_topic="test2-e-req",
+        chunk_embedding_requests_subscription="test2-e-req-sub",
     )
     assert config.chunk_embedding_requests_topic
     assert config.chunking_responses_topic
