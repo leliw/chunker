@@ -17,10 +17,11 @@ _log = logging.getLogger(__name__)
 
 
 def lifespan(config: AppConfig = AppConfig()):
+    _log.info("Version: %s", config.version)
+    app_state = AppState.create(config)
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        _log.info("Version: %s", config.version)
-        app_state = AppState.create(config)
         app.state.app_state = app_state
 
         app_state.add_subscription(config.chunking_requests_subscription, get_chunk_request_message_router(app_state))

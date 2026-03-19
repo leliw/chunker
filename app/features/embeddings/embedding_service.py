@@ -21,6 +21,12 @@ class EmbeddingService:
         self.data_dir = config.data_dir
         self.default_model_for_language = config.default_model_for_language
         self.models: Dict[str, Optional[SentenceTransformer]] = {}
+        self.load_models()
+
+    def load_models(self):
+        """Load all available models."""
+        for model_name in self.get_model_names():
+            self.get_model(model_name)
 
     def get_model_names(self) -> List[str]:
         """Return a list of available models."""
@@ -167,4 +173,3 @@ class EmbeddingService:
             self._log.warning("No language detected for text: %s", text)
             self._log.warning("Using default model: %s", ret)
             return ret
-
