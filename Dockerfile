@@ -45,4 +45,4 @@ USER appuser
 
 # Run the application.
 EXPOSE 8080
-CMD ["sh", "-c", "uv run --no-dev gunicorn --bind 0.0.0.0:8080 -k uvicorn.workers.UvicornWorker --workers ${WORKERS:-1} --timeout 300 main:app"]
+CMD ["sh", "-c", "uv run --no-dev gunicorn --bind 0.0.0.0:${PORT:-8080} -k uvicorn.workers.UvicornWorker --workers ${WORKERS:-1} --timeout 300 main:app"]
