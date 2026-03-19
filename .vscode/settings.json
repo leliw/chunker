@@ -5,9 +5,11 @@
         "--log-date-format=%H:%M:%S.%f",
         "--color=yes",
         "--force-short-summary",
-
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "debugpy.debugJustMyCode": false,
+    "window.autoDetectColorScheme": true,
+    "workbench.preferredDarkColorTheme": "Default Dark Modern",
+    "workbench.preferredLightColorTheme": "Default Light Modern",
 }
