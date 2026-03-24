@@ -12,7 +12,7 @@ resource "google_cloud_run_v2_service" "app" {
   name                = "${local.name_prefix}-run"
   location            = var.region
   ingress             = "INGRESS_TRAFFIC_ALL"
-  deletion_protection = var.environment != "prod"
+  deletion_protection = var.environment == "prod"
 
   scaling {
     min_instance_count = 0

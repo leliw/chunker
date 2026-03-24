@@ -32,6 +32,26 @@ It is designed to be stateless and scalable as part of a microservices architect
 * **Containerization**: Docker
 * **Testing**: Pytest
 
+## Infrastructure
+
+The service can be deployed on any platform that supports Python and Docker. It is designed to be stateless, so it can be easily scaled horizontally.
+
+```bash
+cd infra
+terraform init
+terraform workspace new local
+terraform workspace new it
+terraform workspace new dev
+terraform workspace new prod
+```
+
+```bash
+cd infra
+terraform init
+terraform workspace select local
+terraform plan -var-file=local.tfvars
+```
+
 ## Build and Run
 
 To build and run the service, you can use Docker. The service is available in two versions: `cpu` and `gpu`. You can build the image using the provided `docker_build.sh` script.

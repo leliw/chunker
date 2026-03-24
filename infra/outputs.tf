@@ -3,6 +3,10 @@ output "service_url" {
   description = "Publiczny URL usługi Cloud Run"
 }
 
+output "CHUNKING_REQUESTS_TOPIC" {
+  value = module.pubsub_chunking_requests.topic_name
+}
+
 output "CHUNKING_REQUESTS_SUBSCRIPTION" {
   value = module.pubsub_chunking_requests.subscription_name
 }
