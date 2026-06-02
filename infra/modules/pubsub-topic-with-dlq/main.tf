@@ -1,9 +1,8 @@
 locals {
-  subscription_name_suffix = var.subscription_name_suffix != null ? var.subscription_name_suffix : (var.push_endpoint != null ? "push" : "sub")
-  topic_full_name          = var.topic_name
-  dlq_topic_name           = "${local.topic_full_name}-dlq"
-  subscription_full_name   = "${local.topic_full_name}-${local.subscription_name_suffix}"
-  dlq_subscription_name    = "${local.dlq_topic_name}-sub"
+  topic_full_name        = var.topic_name
+  dlq_topic_name         = "${local.topic_full_name}-dlq"
+  subscription_full_name = "${local.topic_full_name}-${var.subscription_name_suffix}"
+  dlq_subscription_name  = "${local.dlq_topic_name}-sub"
 
   effective_labels = merge(
     {

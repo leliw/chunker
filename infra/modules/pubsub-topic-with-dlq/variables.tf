@@ -11,7 +11,7 @@ variable "region" {
 
 variable "topic_name" {
   type        = string
-  description = "Nazwa głównego topicu (bez prefiksu środowiska)"
+  description = "Nazwa głównego topicu"
 }
 
 variable "environment" {

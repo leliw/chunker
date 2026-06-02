@@ -9,8 +9,6 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /
 
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
-# Keeps Python from generating .pyc files in the container
-ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
@@ -44,5 +42,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 USER appuser
 
 # Run the application.
+ENV PORT=8080
+ENV WORKERS=2
+
 EXPOSE 8080
-CMD ["sh", "-c", "uv run --no-dev gunicorn --bind 0.0.0.0:${PORT:-8080} -k uvicorn.workers.UvicornWorker --workers ${WORKERS:-1} --timeout 300 main:app"]
+CMD gunicorn --bind 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker --workers $WORKERS --timeout 300 main:app
