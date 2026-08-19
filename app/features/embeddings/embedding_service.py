@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Dict, List, Optional
 
 from app_config import AppConfig
 from lingua import IsoCode639_1, Language, LanguageDetectorBuilder
@@ -13,14 +12,9 @@ class EmbeddingService:
     _log = logging.getLogger(__name__)
 
     def __init__(self, config: AppConfig):
-        """Initialize the EmbeddingService.
-
-        Args:
-            data_dir (str): The directory where the models are stored.
-        """
         self.data_dir = config.data_dir
         self.default_model_for_language = config.default_model_for_language
-        self.models: Dict[str, Optional[SentenceTransformer]] = {}
+        self.models: dict[str, SentenceTransformer | None] = {}
         self.load_models()
 
     def load_models(self):
@@ -28,7 +22,7 @@ class EmbeddingService:
         for model_name in self.get_model_names():
             self.get_model(model_name)
 
-    def get_model_names(self) -> List[str]:
+    def get_model_names(self) -> list[str]:
         """Return a list of available models."""
         if not self.models:
             for name1 in os.listdir(self.data_dir):
@@ -58,7 +52,7 @@ class EmbeddingService:
         return model
 
     # @deprecated(reason="Use generate_query_embeddings or generate_passage_embedding instead")
-    def generate_embeddings(self, model_name: str, text: str) -> List[float]:
+    def generate_embeddings(self, model_name: str, text: str) -> list[float]:
         """Generate embeddings for the given text using the specified model.
 
         Args:
@@ -123,7 +117,7 @@ class EmbeddingService:
         match req.embedding_model_name:
             case "ipipan/silver-retriever-base-v1.1":
                 # Polish Silver Retriever model expects the title and text with the special token "</s>"
-                embedding = model.encode(f"{req.title}</s>{req.text}", show_progress_bar=False).tolist()
+                embedding = model.encode(f"{req.title or ""}</s>{req.text}", show_progress_bar=False).tolist()
                 self._log.debug(f"Embedding calculated: {req.embedding_model_name}")
                 return EmbeddingResponse(
                     embedding=embedding, language=req.language, embedding_model_name=req.embedding_model_name
@@ -161,7 +155,7 @@ class EmbeddingService:
     def detect_language(self, text: str) -> str:
         # Create a language detector for a set of languages
         languages = [
-            Language.from_iso_code_639_1(IsoCode639_1.from_str(code)) for code in self.default_model_for_language.keys()
+            Language.from_iso_code_639_1(IsoCode639_1.from_str(code)) for code in self.default_model_for_language
         ]
         detector = LanguageDetectorBuilder.from_languages(*languages).with_minimum_relative_distance(0.5).build()
         # Detect the language of the text
@@ -171,5 +165,5 @@ class EmbeddingService:
         else:
             ret = next(iter(self.default_model_for_language))
             self._log.warning("No language detected for text: %s", text)
-            self._log.warning("Using default model: %s", ret)
+            self._log.warning("Using default language: %s", ret)
             return ret

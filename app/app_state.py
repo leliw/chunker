@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import Dict
 
 from ampf.base import BaseAsyncFactory
 from ampf.gcp import GcpAsyncFactory, GcpSubscriptionPull, SubscriptionProcessor
@@ -14,9 +13,9 @@ _log = logging.getLogger(__name__)
 @dataclass
 class AppSubscriptions:
     @property
-    def subscriptions(self) -> Dict[str, GcpSubscriptionPull]:
+    def subscriptions(self) -> dict[str, GcpSubscriptionPull]:
         if not hasattr(self, "_subscriptions"):
-            self._subscriptions: Dict[str, GcpSubscriptionPull] = {}
+            self._subscriptions: dict[str, GcpSubscriptionPull] = {}
         return self._subscriptions
 
     def add_topic_subscription(
