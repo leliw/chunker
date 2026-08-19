@@ -1,4 +1,4 @@
-import os
+from app_config import AppConfig
 from dependencies import lifespan, verify_api_key
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI
@@ -13,17 +13,14 @@ from version import __version__
 
 load_dotenv()
 setup_logging()
+app_config = AppConfig()
 app = FastAPI(
-    lifespan=lifespan(),
+    lifespan=lifespan(app_config),
     title="Chunker",
     version=__version__,
     dependencies=[Depends(verify_api_key)],
 )
 
-if os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT"):
-    from otel import setup_otel
-    setup_otel(app)
-    
 app.include_router(config.router, prefix="/api/config")
 app.include_router(embeddings.router, prefix="/api/embeddings")
 app.include_router(chunks.router, prefix="/api/chunks")

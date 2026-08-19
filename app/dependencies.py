@@ -1,5 +1,6 @@
 import logging
-from typing import Annotated, Optional
+import os
+from typing import Annotated
 
 from app_config import AppConfig
 from app_state import AppState
@@ -16,12 +17,16 @@ load_dotenv()
 _log = logging.getLogger(__name__)
 
 
-def lifespan(config: AppConfig = AppConfig()):
+def lifespan(config: AppConfig):
     _log.info("Version: %s", config.version)
     app_state = AppState.create(config)
 
     @asynccontextmanager
-    async def lifespan(app: FastAPI):
+    async def _lifespan(app: FastAPI):
+        if os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT"):
+            from otel import setup_otel
+            setup_otel(app)
+
         app.state.app_state = app_state
 
         app_state.add_subscription(config.chunking_requests_subscription, get_chunk_request_message_router(app_state))
@@ -30,7 +35,7 @@ def lifespan(config: AppConfig = AppConfig()):
         with app_state:
             yield
 
-    return lifespan
+    return _lifespan
 
 
 def get_app_state(request: Request) -> AppState:
@@ -49,7 +54,7 @@ ConfigDep = Annotated[AppConfig, Depends(get_server_config)]
 
 async def verify_api_key(
     config: ConfigDep,
-    x_api_key: Annotated[Optional[str], Header(description="Required for authentication")] = None,
+    x_api_key: Annotated[str | None, Header(description="Required for authentication")] = None,
 ):
     if config.api_key:
         if not x_api_key:
