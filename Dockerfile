@@ -43,7 +43,7 @@ USER appuser
 
 # Run the application.
 ENV PORT=8080
-ENV WORKERS=2
+ENV WORKERS=3
 
 EXPOSE 8080
-CMD gunicorn --bind 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker --workers $WORKERS --timeout 300 main:app
+CMD gunicorn --bind 0.0.0.0:$PORT -k uvicorn.workers.UvicornWorker --workers $WORKERS --preload --timeout 300 main:app
